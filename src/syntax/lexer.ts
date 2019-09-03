@@ -289,6 +289,12 @@ export class Lexer {
         this.advance();
       }
       switch (buf) {
+        case 'true':
+          kind = TokenKind.TrueLiteral;
+          break;
+        case 'false':
+          kind = TokenKind.FalseLiteral;
+          break;
         case 'var':
           kind = TokenKind.Var;
           break;
