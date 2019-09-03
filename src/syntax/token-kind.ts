@@ -36,6 +36,7 @@ export enum TokenKind {
   Minus,
   MinusMinus,
   Star,
+  Slash,
 
   // comparison
   LessThan,
