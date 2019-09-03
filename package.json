@@ -1,0 +1,63 @@
+{
+  "name": "sgml",
+  "version": "0.1.0",
+  "description": "A type checker for GML.",
+  "main": "lib/index.js",
+  "scripts": {
+    "compile": "tsc -p .",
+    "lint": "npm run lint:tslint && npm run lint:editorconfig",
+    "lint:tslint": "tslint -p .",
+    "lint:editorconfig": "editorconfig-checker",
+    "test": "nyc mocha",
+    "coverage": "nyc report --reporter=text-lcov | coverals"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thomas-crane/sgml.git"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "include": [
+      "src/"
+    ],
+    "reporter": [
+      "text",
+      "html"
+    ],
+    "all": true
+  },
+  "keywords": [
+    "compiler",
+    "type-checker",
+    "game-maker",
+    "gml"
+  ],
+  "author": "tcrane",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thomas-crane/sgml/issues"
+  },
+  "homepage": "https://github.com/thomas-crane/sgml#readme",
+  "devDependencies": {
+    "@types/chai": "^4.2.0",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.7.2",
+    "chai": "^4.2.0",
+    "coveralls": "^3.0.6",
+    "editorconfig-checker": "^3.0.2",
+    "husky": "^3.0.4",
+    "mocha": "^6.2.0",
+    "nyc": "^14.1.1",
+    "source-map-support": "^0.5.13",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.19.0",
+    "typescript": "^3.5.3"
+  }
+}

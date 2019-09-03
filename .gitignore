@@ -1,0 +1,13 @@
+# node modules
+node_modules/
+
+# user stuff
+.vscode/
+.DS_Store
+
+# build result
+lib/
+
+# coverage output
+.nyc_output/
+coverage/
