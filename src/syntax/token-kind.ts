@@ -2,9 +2,6 @@ export enum TokenKind {
   EOF,
   Unknown,
 
-  LineComment,
-  BlockComment,
-
   // literals
   IntLiteral,
   RealLiteral,
