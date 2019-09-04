@@ -2,9 +2,46 @@ import { assert, expect } from 'chai';
 import 'mocha';
 import { Lexer } from '../../src/syntax/lexer';
 import { TokenKind } from '../../src/syntax/token-kind';
+import { TriviaKind } from '../../src/syntax/trivia-kind';
+
+const TEST_SCRIPT = `ds = ds_grid_create();
+ds_grid_clear(ds, 0);
+var gw = ds_grid_width(ds) - 1;
+var gh = ds_grid_height(ds) - 1;
+/*
+ * repeat 10 times
+ */
+repeat(10)
+  {
+  var xx = irandom(gw);
+  var yy = irandom(gh);
+  if ds[# xx, yy] == 0 ds[# xx, yy] = 1;
+  }
+
+var a = argument0; var i = 0; repeat(25)
+{
+i = irandom(99);
+while (a[i] != 0)
+  {
+  i = irandom(99);
+  }
+a[@ i] = 100;
+}
+`;
 
 describe('Lexer', () => {
-  describe('#allTokens()', () => {
+  describe('#tokens()', () => {
+    it('should fully represent the source code.', () => {
+      const lexer = new Lexer(TEST_SCRIPT);
+      const tokens = lexer.tokens();
+      const result = tokens.reduce((str, token) => {
+        str += token.leadingTrivia.map((trivia) => trivia.value).join('');
+        str += token.value;
+        str += token.trailingTrivia.map((trivia) => trivia.value).join('');
+        return str;
+      }, '');
+      expect(result).to.equal(TEST_SCRIPT);
+    });
     it('should return EOF if the input is empty.', () => {
       const lexer = new Lexer('');
       expect(lexer.tokens().length).to.equal(1);
@@ -13,19 +50,20 @@ describe('Lexer', () => {
       const lexer = new Lexer('    ');
       expect(lexer.tokens().length).to.equal(1);
     });
-    it('should recognise line comments.', () => {
-      const commentText = '// this is a test\n';
-      const lexer = new Lexer(`${commentText} this is not included.`);
-      const comment = lexer.tokens()[0];
-      expect(comment.kind).to.equal(TokenKind.LineComment);
-      expect(comment.value).to.equal(commentText);
+    it('should attach trivia on the same line as a token to the trailing trivia of that token.', () => {
+      const whitespace = '   ';
+      const lexer = new Lexer(`a${whitespace}`);
+      const [firstToken] = lexer.tokens();
+      expect(firstToken.trailingTrivia[0].kind).to.equal(TriviaKind.Whitespace);
+      expect(firstToken.trailingTrivia[0].value).to.equal(whitespace);
     });
-    it('should recognise block comments.', () => {
-      const commentText = '/* this is another test */';
-      const lexer = new Lexer(`${commentText} this is not included.`);
-      const comment = lexer.tokens()[0];
-      expect(comment.kind).to.equal(TokenKind.BlockComment);
-      expect(comment.value).to.equal(commentText);
+    it('should attach any trivia after a line break to the leading trivia of the next token.', () => {
+      const firstComment = '// test comment\n';
+      const secondComment = '// another test comment\n';
+      const lexer = new Lexer(`a${firstComment}${secondComment}b`);
+      const [firstToken, secondToken] = lexer.tokens();
+      expect(firstToken.trailingTrivia.length).to.equal(1);
+      expect(secondToken.leadingTrivia.length).to.equal(1);
     });
     it('should recognise integer literals', () => {
       const lexer = new Lexer('12 43 155 0 123897');

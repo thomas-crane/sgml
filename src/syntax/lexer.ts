@@ -2,6 +2,8 @@ import { match } from './match';
 import { TextSpan } from './text-span';
 import { Token } from './token';
 import { TokenKind } from './token-kind';
+import { Trivia } from './trivia';
+import { TriviaKind } from './trivia-kind';
 
 const whitespace = match(/[\r\n\t ]/);
 const digit = match(/[0-9]/);
@@ -26,20 +28,54 @@ export class Lexer {
 
   tokens(): Token[] {
     const tokens: Token[] = [];
-    let token: Token;
+    let lastToken: Token | undefined;
+    let awaitingTrivia: Trivia[] = [];
+    let token: Token | Trivia;
     do {
       token = this.nextToken();
-      tokens.push(token);
-    } while (token.kind !== TokenKind.EOF);
+      // FIXME: don't use instanceof.
+      if (token instanceof Trivia) {
+        // if there is a current token, attach it to the trailing trivia.
+        if (lastToken !== undefined) {
+          lastToken.trailingTrivia.push(token);
+          // if this trivia terminates the line, it should go into the
+          // leading trivia of the next token.
+          if (token.value.includes('\n')) {
+            awaitingTrivia = [];
+            lastToken = undefined;
+          }
+        } else {
+          // otherwise wait for now.
+          awaitingTrivia.push(token);
+        }
+      } else {
+        tokens.push(token);
+        lastToken = token;
+        // if there are any awaiting trivias, attach them to this token.
+        for (const trivia of awaitingTrivia) {
+          token.leadingTrivia.push(trivia);
+        }
+        awaitingTrivia = [];
+      }
+      // FIXME: don't use instanceof.
+    } while (token instanceof Trivia || (token instanceof Token && token.kind !== TokenKind.EOF));
     return tokens;
   }
 
-  private nextToken(): Token {
+  private nextToken(): Token | Trivia {
     // whitespace
     if (whitespace(this.current)) {
+      const start = this.idx;
+      let buf = '';
       do {
+        buf += this.current;
         this.advance();
       } while (!this.atEnd && whitespace(this.current));
+      return new Trivia(
+        TriviaKind.Whitespace,
+        new TextSpan(start, buf.length),
+        buf,
+      );
     }
 
     // line comments
@@ -53,8 +89,8 @@ export class Lexer {
       // also consume the final newline
       buf += this.current;
       this.advance();
-      return new Token(
-        TokenKind.LineComment,
+      return new Trivia(
+        TriviaKind.LineComment,
         new TextSpan(start, buf.length),
         buf,
       );
@@ -70,8 +106,8 @@ export class Lexer {
       // also consume the comment close
       buf += '*/';
       this.idx += 2;
-      return new Token(
-        TokenKind.BlockComment,
+      return new Trivia(
+        TriviaKind.BlockComment,
         new TextSpan(start, buf.length),
         buf,
       );
