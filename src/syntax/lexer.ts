@@ -207,6 +207,9 @@ export class Lexer {
       case '#':
         kind = SyntaxKind.Hash;
         break;
+      case '@':
+        kind = SyntaxKind.At;
+        break;
       case '+':
         kind = SyntaxKind.Plus;
         if (this.current === '=') {
@@ -291,6 +294,11 @@ export class Lexer {
         break;
       case '^':
         kind = SyntaxKind.Caret;
+        if (this.current === '^') {
+          buf += this.current;
+          this.advance();
+          kind = SyntaxKind.CaretCaret;
+        }
         break;
       case '~':
         kind = SyntaxKind.Tilde;
@@ -381,6 +389,12 @@ export class Lexer {
           break;
         case 'with':
           kind = SyntaxKind.With;
+          break;
+        case 'global':
+          kind = SyntaxKind.Global;
+          break;
+        case 'enum':
+          kind = SyntaxKind.Enum;
           break;
         default:
           kind = SyntaxKind.Identifier;

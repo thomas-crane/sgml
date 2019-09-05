@@ -91,7 +91,7 @@ describe('Lexer', () => {
       expect(falseToken.kind).to.equal(SyntaxKind.FalseLiteral);
     });
     it('should recognise misc symbols', () => {
-      const lexer = new Lexer('. ; , ! ? # = += -=');
+      const lexer = new Lexer('. ; , ! ? # @ = += -=');
       assert.isTrue(lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown));
     });
     it('should recognise arithmetic operators', () => {
@@ -103,7 +103,7 @@ describe('Lexer', () => {
       assert.isTrue(lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown));
     });
     it('should recognise bitwise operators.', () => {
-      const lexer = new Lexer('& | && || ^ << >> ~');
+      const lexer = new Lexer('& | && || ^ ^^ << >> ~');
       assert.isTrue(lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown));
     });
     it('should recognise parentheses.', () => {
@@ -111,15 +111,15 @@ describe('Lexer', () => {
       assert.isTrue(lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown));
     });
     it('should recognise keywords.', () => {
-      const lexer = new Lexer('var mod div if else repeat while do until for continue switch case break default exit with');
+      const lexer = new Lexer('var mod div if else repeat while do until for continue switch case break default exit with global enum');
       assert.isTrue(
         lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown && token.kind !== SyntaxKind.Identifier),
       );
     });
     it('should recognise unknown tokens.', () => {
       const lexer = new Lexer('💡');
-      const token = lexer.tokens()[0];
-      expect(token.kind).to.equal(SyntaxKind.Unknown);
+      const [firstToken] = lexer.tokens();
+      expect(firstToken.kind).to.equal(SyntaxKind.Unknown);
     });
   });
 });
