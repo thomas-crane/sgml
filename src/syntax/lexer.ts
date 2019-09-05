@@ -390,9 +390,6 @@ export class Lexer {
         case 'with':
           kind = SyntaxKind.With;
           break;
-        case 'global':
-          kind = SyntaxKind.Global;
-          break;
         case 'enum':
           kind = SyntaxKind.Enum;
           break;

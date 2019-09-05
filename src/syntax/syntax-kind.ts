@@ -72,7 +72,6 @@ export enum SyntaxKind {
   Default,
   Exit,
   With,
-  Global,
   Enum,
   LastToken,
 
@@ -85,10 +84,10 @@ export enum SyntaxKind {
 
   // statements
   FirstStatement,
+  ExpressionStatement,
   BlockStatement,
   AssignmentStatement,
   LocalDeclarationStatement,
-  GlobalDeclarationStatement,
   IfStatement,
   RepeatStatement,
   WhileStatement,

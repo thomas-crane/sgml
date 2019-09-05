@@ -111,7 +111,7 @@ describe('Lexer', () => {
       assert.isTrue(lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown));
     });
     it('should recognise keywords.', () => {
-      const lexer = new Lexer('var mod div if else repeat while do until for continue switch case break default exit with global enum');
+      const lexer = new Lexer('var mod div if else repeat while do until for continue switch case break default exit with enum');
       assert.isTrue(
         lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown && token.kind !== SyntaxKind.Identifier),
       );
