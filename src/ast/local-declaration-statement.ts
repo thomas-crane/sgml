@@ -2,6 +2,7 @@ import { SyntaxKind } from '../syntax/syntax-kind';
 import { SyntaxToken } from '../syntax/syntax-token';
 import { TextSpan } from '../syntax/text-span';
 import { ExpressionSyntax } from './expression-syntax';
+import { IdentifierExpression } from './identifier-expression';
 import { StatementSyntax } from './statement-syntax';
 
 export class LocalDeclarationStatement extends StatementSyntax {
@@ -17,7 +18,7 @@ export class LocalDeclarationStatement extends StatementSyntax {
 
   constructor(
     readonly varToken: SyntaxToken,
-    readonly identifier: SyntaxToken,
+    readonly identifier: IdentifierExpression,
     readonly equals: SyntaxToken | undefined,
     readonly expression: ExpressionSyntax | undefined,
     readonly semicolon: SyntaxToken,
