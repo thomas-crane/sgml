@@ -5,11 +5,10 @@ import { TextSpan } from './text-span';
 
 export class SyntaxToken extends SyntaxNode {
   readonly children = [];
-  parent = undefined;
 
   constructor(
-    kind: SyntaxKind,
-    span: TextSpan,
+    readonly kind: SyntaxKind,
+    readonly span: TextSpan,
     /**
      * The value of this token.
      */
@@ -24,6 +23,6 @@ export class SyntaxToken extends SyntaxNode {
      */
     readonly trailingTrivia: SyntaxTrivia[] = [],
   ) {
-    super(kind, span);
+    super();
   }
 }

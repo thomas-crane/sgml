@@ -7,17 +7,15 @@ export abstract class SyntaxNode {
    */
   abstract readonly children: SyntaxNode[];
   /**
+   * The type of this syntax node.
+   */
+  abstract readonly kind: SyntaxKind;
+  /**
+   * The span of this syntax node.
+   */
+  abstract readonly span: TextSpan;
+  /**
    * The parent of this node.
    */
-  abstract parent: SyntaxNode | undefined;
-  constructor(
-    /**
-     * The type of this syntax node.
-     */
-    readonly kind: SyntaxKind,
-    /**
-     * The span of this syntax node.
-     */
-    readonly span: TextSpan,
-  ) { }
+  parent: SyntaxNode | undefined;
 }
