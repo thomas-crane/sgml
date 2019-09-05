@@ -1,19 +1,16 @@
-export enum TokenKind {
+export enum SyntaxKind {
+  // tokens
+  FirstToken,
   EOF,
   Unknown,
-
   // literals
   IntLiteral,
   RealLiteral,
   HexLiteral,
-
   StringLiteral,
-
   Identifier,
-
   TrueLiteral,
   FalseLiteral,
-
   // misc
   Dot,
   Semicolon,
@@ -21,12 +18,10 @@ export enum TokenKind {
   Bang,
   QuestionMark,
   Hash,
-
   // variables
   Equals,
   PlusEquals,
   MinusEquals,
-
   // arithmetic
   Plus,
   PlusPlus,
@@ -34,7 +29,6 @@ export enum TokenKind {
   MinusMinus,
   Star,
   Slash,
-
   // comparison
   LessThan,
   LessThanEquals,
@@ -42,7 +36,6 @@ export enum TokenKind {
   BangEquals,
   GreaterThan,
   GreaterThanEquals,
-
   // bitwise
   Ampersand,
   Pipe,
@@ -52,7 +45,6 @@ export enum TokenKind {
   LessThanLessThan,
   GreaterThanGreaterThan,
   Tilde,
-
   // parens
   LeftParenthesis,
   RightParenthesis,
@@ -60,31 +52,30 @@ export enum TokenKind {
   RightCurlyBracket,
   LeftBracket,
   RightBracket,
-
   // keywords
   Var,
   Mod,
   Div,
-
   If,
   Else,
-
   Repeat,
-
   While,
-
   Do,
   Until,
-
   For,
   Continue,
-
   Switch,
   Case,
   Break,
   Default,
-
   Exit,
-
   With,
+  LastToken,
+
+  // trivia
+  FirstTrivia,
+  LineComment,
+  BlockComment,
+  Whitespace,
+  LastTrivia,
 }

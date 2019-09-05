@@ -1,8 +1,7 @@
 import { assert, expect } from 'chai';
 import 'mocha';
 import { Lexer } from '../../src/syntax/lexer';
-import { TokenKind } from '../../src/syntax/token-kind';
-import { TriviaKind } from '../../src/syntax/trivia-kind';
+import { SyntaxKind } from '../../src/syntax/syntax-kind';
 
 const TEST_SCRIPT = `ds = ds_grid_create();
 ds_grid_clear(ds, 0);
@@ -54,7 +53,7 @@ describe('Lexer', () => {
       const whitespace = '   ';
       const lexer = new Lexer(`a${whitespace}`);
       const [firstToken] = lexer.tokens();
-      expect(firstToken.trailingTrivia[0].kind).to.equal(TriviaKind.Whitespace);
+      expect(firstToken.trailingTrivia[0].kind).to.equal(SyntaxKind.Whitespace);
       expect(firstToken.trailingTrivia[0].value).to.equal(whitespace);
     });
     it('should attach any trivia after a line break to the leading trivia of the next token.', () => {
@@ -67,60 +66,60 @@ describe('Lexer', () => {
     });
     it('should recognise integer literals', () => {
       const lexer = new Lexer('12 43 155 0 123897');
-      assert.isTrue(lexer.tokens().slice(0, -1).every((token) => token.kind === TokenKind.IntLiteral));
+      assert.isTrue(lexer.tokens().slice(0, -1).every((token) => token.kind === SyntaxKind.IntLiteral));
     });
     it('should recognise real literals.', () => {
       const lexer = new Lexer('0.123 0.0 1.2 12343.4234');
-      assert.isTrue(lexer.tokens().slice(0, -1).every((token) => token.kind === TokenKind.RealLiteral));
+      assert.isTrue(lexer.tokens().slice(0, -1).every((token) => token.kind === SyntaxKind.RealLiteral));
     });
     it('should recognise hex literals.', () => {
       const lexer = new Lexer('$0fff $deadbeef $c0ffee');
-      assert.isTrue(lexer.tokens().slice(0, -1).every((token) => token.kind === TokenKind.HexLiteral));
+      assert.isTrue(lexer.tokens().slice(0, -1).every((token) => token.kind === SyntaxKind.HexLiteral));
     });
     it('should recognise string literals.', () => {
       const lexer = new Lexer(`"hello" 'world'`);
-      assert.isTrue(lexer.tokens().slice(0, -1).every((token) => token.kind === TokenKind.StringLiteral));
+      assert.isTrue(lexer.tokens().slice(0, -1).every((token) => token.kind === SyntaxKind.StringLiteral));
     });
     it('should recognise valid identifiers.', () => {
       const lexer = new Lexer('hello _world _123 hEllo WORLD _TEST _213ASD');
-      assert.isTrue(lexer.tokens().slice(0, -1).every((token) => token.kind === TokenKind.Identifier));
+      assert.isTrue(lexer.tokens().slice(0, -1).every((token) => token.kind === SyntaxKind.Identifier));
     });
     it('should recognise boolean literals.', () => {
       const lexer = new Lexer('true false');
       const [trueToken, falseToken] = lexer.tokens();
-      expect(trueToken.kind).to.equal(TokenKind.TrueLiteral);
-      expect(falseToken.kind).to.equal(TokenKind.FalseLiteral);
+      expect(trueToken.kind).to.equal(SyntaxKind.TrueLiteral);
+      expect(falseToken.kind).to.equal(SyntaxKind.FalseLiteral);
     });
     it('should recognise misc symbols', () => {
       const lexer = new Lexer('. ; , ! ? # = += -=');
-      assert.isTrue(lexer.tokens().every((token) => token.kind !== TokenKind.Unknown));
+      assert.isTrue(lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown));
     });
     it('should recognise arithmetic operators', () => {
       const lexer = new Lexer('+ ++ - -- * /');
-      assert.isTrue(lexer.tokens().every((token) => token.kind !== TokenKind.Unknown));
+      assert.isTrue(lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown));
     });
     it('should recognise comparison operators.', () => {
       const lexer = new Lexer('> < >= <= == !=');
-      assert.isTrue(lexer.tokens().every((token) => token.kind !== TokenKind.Unknown));
+      assert.isTrue(lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown));
     });
     it('should recognise bitwise operators.', () => {
       const lexer = new Lexer('& | && || ^ << >> ~');
-      assert.isTrue(lexer.tokens().every((token) => token.kind !== TokenKind.Unknown));
+      assert.isTrue(lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown));
     });
     it('should recognise parentheses.', () => {
       const lexer = new Lexer('( ) { } [ ]');
-      assert.isTrue(lexer.tokens().every((token) => token.kind !== TokenKind.Unknown));
+      assert.isTrue(lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown));
     });
     it('should recognise keywords.', () => {
       const lexer = new Lexer('var mod div if else repeat while do until for continue switch case break default exit with');
       assert.isTrue(
-        lexer.tokens().every((token) => token.kind !== TokenKind.Unknown && token.kind !== TokenKind.Identifier),
+        lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown && token.kind !== SyntaxKind.Identifier),
       );
     });
     it('should recognise unknown tokens.', () => {
       const lexer = new Lexer('💡');
       const token = lexer.tokens()[0];
-      expect(token.kind).to.equal(TokenKind.Unknown);
+      expect(token.kind).to.equal(SyntaxKind.Unknown);
     });
   });
 });

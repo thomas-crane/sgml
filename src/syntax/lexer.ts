@@ -1,9 +1,9 @@
 import { match } from './match';
+import { SyntaxKind } from './syntax-kind';
+import { SyntaxNode } from './syntax-node';
+import { SyntaxToken } from './syntax-token';
+import { SyntaxTrivia } from './syntax-trivia';
 import { TextSpan } from './text-span';
-import { Token } from './token';
-import { TokenKind } from './token-kind';
-import { Trivia } from './trivia';
-import { TriviaKind } from './trivia-kind';
 
 const whitespace = match(/[\r\n\t ]/);
 const digit = match(/[0-9]/);
@@ -26,29 +26,30 @@ export class Lexer {
     this.src = src;
   }
 
-  tokens(): Token[] {
-    const tokens: Token[] = [];
-    let lastToken: Token | undefined;
-    let awaitingTrivia: Trivia[] = [];
-    let token: Token | Trivia;
+  tokens(): SyntaxToken[] {
+    const tokens: SyntaxToken[] = [];
+    let lastToken: SyntaxToken | undefined;
+    let awaitingTrivia: SyntaxTrivia[] = [];
+    let node: SyntaxNode;
     do {
-      token = this.nextToken();
-      // FIXME: don't use instanceof.
-      if (token instanceof Trivia) {
+      node = this.nextToken();
+      if (node.kind > SyntaxKind.FirstTrivia && node.kind < SyntaxKind.LastTrivia) {
+        const trivia = node as SyntaxTrivia;
         // if there is a current token, attach it to the trailing trivia.
         if (lastToken !== undefined) {
-          lastToken.trailingTrivia.push(token);
+          lastToken.trailingTrivia.push(trivia);
           // if this trivia terminates the line, it should go into the
           // leading trivia of the next token.
-          if (token.value.includes('\n')) {
+          if (trivia.value.includes('\n')) {
             awaitingTrivia = [];
             lastToken = undefined;
           }
         } else {
           // otherwise wait for now.
-          awaitingTrivia.push(token);
+          awaitingTrivia.push(node as SyntaxToken);
         }
       } else {
+        const token = node as SyntaxToken;
         tokens.push(token);
         lastToken = token;
         // if there are any awaiting trivias, attach them to this token.
@@ -57,12 +58,11 @@ export class Lexer {
         }
         awaitingTrivia = [];
       }
-      // FIXME: don't use instanceof.
-    } while (token instanceof Trivia || (token instanceof Token && token.kind !== TokenKind.EOF));
+    } while (node.kind !== SyntaxKind.EOF);
     return tokens;
   }
 
-  private nextToken(): Token | Trivia {
+  private nextToken(): SyntaxNode {
     // whitespace
     if (whitespace(this.current)) {
       const start = this.idx;
@@ -71,8 +71,8 @@ export class Lexer {
         buf += this.current;
         this.advance();
       } while (!this.atEnd && whitespace(this.current));
-      return new Trivia(
-        TriviaKind.Whitespace,
+      return new SyntaxTrivia(
+        SyntaxKind.Whitespace,
         new TextSpan(start, buf.length),
         buf,
       );
@@ -89,8 +89,8 @@ export class Lexer {
       // also consume the final newline
       buf += this.current;
       this.advance();
-      return new Trivia(
-        TriviaKind.LineComment,
+      return new SyntaxTrivia(
+        SyntaxKind.LineComment,
         new TextSpan(start, buf.length),
         buf,
       );
@@ -106,8 +106,8 @@ export class Lexer {
       // also consume the comment close
       buf += '*/';
       this.idx += 2;
-      return new Trivia(
-        TriviaKind.BlockComment,
+      return new SyntaxTrivia(
+        SyntaxKind.BlockComment,
         new TextSpan(start, buf.length),
         buf,
       );
@@ -115,8 +115,8 @@ export class Lexer {
 
     // eof
     if (this.atEnd) {
-      return new Token(
-        TokenKind.EOF,
+      return new SyntaxToken(
+        SyntaxKind.EOF,
         new TextSpan(this.idx, 0),
         '',
       );
@@ -126,20 +126,20 @@ export class Lexer {
     if (digit(this.current)) {
       const start = this.idx;
       let buf = '';
-      let type = TokenKind.IntLiteral;
+      let type = SyntaxKind.IntLiteral;
       do {
         buf += this.current;
         this.advance();
       } while (!this.atEnd && digit(this.current));
       // check for real literals
       if (this.current === '.' && digit(this.peek(1))) {
-        type = TokenKind.RealLiteral;
+        type = SyntaxKind.RealLiteral;
         do {
           buf += this.current;
           this.advance();
         } while (!this.atEnd && digit(this.current));
       }
-      return new Token(
+      return new SyntaxToken(
         type,
         new TextSpan(start, buf.length),
         buf,
@@ -153,8 +153,8 @@ export class Lexer {
         buf += this.current;
         this.advance();
       } while (!this.atEnd && hex(this.current));
-      return new Token(
-        TokenKind.HexLiteral,
+      return new SyntaxToken(
+        SyntaxKind.HexLiteral,
         new TextSpan(start, buf.length),
         buf,
       );
@@ -170,152 +170,152 @@ export class Lexer {
         this.advance();
         // TODO: check for escaped quotes.
       } while (!this.atEnd && this.current !== EOS);
-      return new Token(
-        TokenKind.StringLiteral,
+      return new SyntaxToken(
+        SyntaxKind.StringLiteral,
         new TextSpan(start, buf.length),
         buf,
       );
     }
 
     // misc
-    let kind: TokenKind;
+    let kind: SyntaxKind;
     const start = this.idx;
     let buf = this.current;
     this.advance();
 
     switch (buf) {
       case '.':
-        kind = TokenKind.Dot;
+        kind = SyntaxKind.Dot;
         break;
       case ';':
-        kind = TokenKind.Semicolon;
+        kind = SyntaxKind.Semicolon;
         break;
       case ',':
-        kind = TokenKind.Semicolon;
+        kind = SyntaxKind.Semicolon;
         break;
       case '!':
-        kind = TokenKind.Bang;
+        kind = SyntaxKind.Bang;
         if (this.current === '=') {
           buf += this.current;
           this.advance();
-          kind = TokenKind.BangEquals;
+          kind = SyntaxKind.BangEquals;
         }
         break;
       case '?':
-        kind = TokenKind.QuestionMark;
+        kind = SyntaxKind.QuestionMark;
         break;
       case '#':
-        kind = TokenKind.Hash;
+        kind = SyntaxKind.Hash;
         break;
       case '+':
-        kind = TokenKind.Plus;
+        kind = SyntaxKind.Plus;
         if (this.current === '=') {
           buf += this.current;
           this.advance();
-          kind = TokenKind.PlusEquals;
+          kind = SyntaxKind.PlusEquals;
         }
         if (this.current === '+') {
           buf += this.current;
           this.advance();
-          kind = TokenKind.PlusPlus;
+          kind = SyntaxKind.PlusPlus;
         }
         break;
       case '-':
-        kind = TokenKind.Minus;
+        kind = SyntaxKind.Minus;
         if (this.current === '=') {
           buf += this.current;
           this.advance();
-          kind = TokenKind.MinusEquals;
+          kind = SyntaxKind.MinusEquals;
         }
         if (this.current === '-') {
           buf += this.current;
           this.advance();
-          kind = TokenKind.MinusMinus;
+          kind = SyntaxKind.MinusMinus;
         }
         break;
       case '*':
-        kind = TokenKind.Star;
+        kind = SyntaxKind.Star;
         break;
       case '/':
-        kind = TokenKind.Slash;
+        kind = SyntaxKind.Slash;
         break;
       case '=':
-        kind = TokenKind.Equals;
+        kind = SyntaxKind.Equals;
         if (this.current === '=') {
           buf += this.current;
           this.advance();
-          kind = TokenKind.EqualsEquals;
+          kind = SyntaxKind.EqualsEquals;
         }
         break;
       case '<':
-        kind = TokenKind.LessThan;
+        kind = SyntaxKind.LessThan;
         if (this.current === '=') {
           buf += this.current;
           this.advance();
-          kind = TokenKind.LessThanEquals;
+          kind = SyntaxKind.LessThanEquals;
         }
         if (this.current === '<') {
           buf += this.current;
           this.advance();
-          kind = TokenKind.LessThanLessThan;
+          kind = SyntaxKind.LessThanLessThan;
         }
         break;
       case '>':
-        kind = TokenKind.GreaterThan;
+        kind = SyntaxKind.GreaterThan;
         if (this.current === '=') {
           buf += this.current;
           this.advance();
-          kind = TokenKind.GreaterThanEquals;
+          kind = SyntaxKind.GreaterThanEquals;
         }
         if (this.current === '>') {
           buf += this.current;
           this.advance();
-          kind = TokenKind.GreaterThanGreaterThan;
+          kind = SyntaxKind.GreaterThanGreaterThan;
         }
         break;
       case '&':
-        kind = TokenKind.Ampersand;
+        kind = SyntaxKind.Ampersand;
         if (this.current === '&') {
           buf += this.current;
           this.advance();
-          kind = TokenKind.AmpersandAmpersand;
+          kind = SyntaxKind.AmpersandAmpersand;
         }
         break;
       case '|':
-        kind = TokenKind.Pipe;
+        kind = SyntaxKind.Pipe;
         if (this.current === '|') {
           buf += this.current;
           this.advance();
-          kind = TokenKind.PipePipe;
+          kind = SyntaxKind.PipePipe;
         }
         break;
       case '^':
-        kind = TokenKind.Caret;
+        kind = SyntaxKind.Caret;
         break;
       case '~':
-        kind = TokenKind.Tilde;
+        kind = SyntaxKind.Tilde;
         break;
 
       case '(':
-        kind = TokenKind.LeftParenthesis;
+        kind = SyntaxKind.LeftParenthesis;
         break;
       case ')':
-        kind = TokenKind.RightParenthesis;
+        kind = SyntaxKind.RightParenthesis;
         break;
       case '{':
-        kind = TokenKind.LeftCurlyBracket;
+        kind = SyntaxKind.LeftCurlyBracket;
         break;
       case '}':
-        kind = TokenKind.RightCurlyBracket;
+        kind = SyntaxKind.RightCurlyBracket;
         break;
       case '[':
-        kind = TokenKind.LeftBracket;
+        kind = SyntaxKind.LeftBracket;
         break;
       case ']':
-        kind = TokenKind.RightBracket;
+        kind = SyntaxKind.RightBracket;
         break;
       default:
-        kind = TokenKind.Unknown;
+        kind = SyntaxKind.Unknown;
         break;
     }
 
@@ -326,69 +326,69 @@ export class Lexer {
       }
       switch (buf) {
         case 'true':
-          kind = TokenKind.TrueLiteral;
+          kind = SyntaxKind.TrueLiteral;
           break;
         case 'false':
-          kind = TokenKind.FalseLiteral;
+          kind = SyntaxKind.FalseLiteral;
           break;
         case 'var':
-          kind = TokenKind.Var;
+          kind = SyntaxKind.Var;
           break;
         case 'mod':
-          kind = TokenKind.Mod;
+          kind = SyntaxKind.Mod;
           break;
         case 'div':
-          kind = TokenKind.Div;
+          kind = SyntaxKind.Div;
           break;
         case 'if':
-          kind = TokenKind.If;
+          kind = SyntaxKind.If;
           break;
         case 'else':
-          kind = TokenKind.Else;
+          kind = SyntaxKind.Else;
           break;
         case 'repeat':
-          kind = TokenKind.Repeat;
+          kind = SyntaxKind.Repeat;
           break;
         case 'while':
-          kind = TokenKind.While;
+          kind = SyntaxKind.While;
           break;
         case 'do':
-          kind = TokenKind.Do;
+          kind = SyntaxKind.Do;
           break;
         case 'until':
-          kind = TokenKind.Until;
+          kind = SyntaxKind.Until;
           break;
         case 'for':
-          kind = TokenKind.For;
+          kind = SyntaxKind.For;
           break;
         case 'continue':
-          kind = TokenKind.Continue;
+          kind = SyntaxKind.Continue;
           break;
         case 'switch':
-          kind = TokenKind.Switch;
+          kind = SyntaxKind.Switch;
           break;
         case 'case':
-          kind = TokenKind.Case;
+          kind = SyntaxKind.Case;
           break;
         case 'break':
-          kind = TokenKind.Break;
+          kind = SyntaxKind.Break;
           break;
         case 'default':
-          kind = TokenKind.Default;
+          kind = SyntaxKind.Default;
           break;
         case 'exit':
-          kind = TokenKind.Exit;
+          kind = SyntaxKind.Exit;
           break;
         case 'with':
-          kind = TokenKind.With;
+          kind = SyntaxKind.With;
           break;
         default:
-          kind = TokenKind.Identifier;
+          kind = SyntaxKind.Identifier;
           break;
       }
     }
 
-    return new Token(
+    return new SyntaxToken(
       kind,
       new TextSpan(start, buf.length),
       buf,
