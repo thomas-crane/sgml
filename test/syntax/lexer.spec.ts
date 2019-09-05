@@ -91,7 +91,7 @@ describe('Lexer', () => {
       expect(falseToken.kind).to.equal(SyntaxKind.FalseLiteral);
     });
     it('should recognise misc symbols', () => {
-      const lexer = new Lexer('. ; , ! ? # @ = += -=');
+      const lexer = new Lexer('. ; : , ! ? # @ = += -=');
       assert.isTrue(lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown));
     });
     it('should recognise arithmetic operators', () => {

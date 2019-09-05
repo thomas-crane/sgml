@@ -14,6 +14,7 @@ export enum SyntaxKind {
   // misc
   Dot,
   Semicolon,
+  Colon,
   Comma,
   Bang,
   QuestionMark,

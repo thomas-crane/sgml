@@ -190,6 +190,9 @@ export class Lexer {
       case ';':
         kind = SyntaxKind.Semicolon;
         break;
+      case ':':
+        kind = SyntaxKind.Colon;
+        break;
       case ',':
         kind = SyntaxKind.Semicolon;
         break;
