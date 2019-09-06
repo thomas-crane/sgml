@@ -81,7 +81,7 @@ repeat(10)
   {
   var xx = irandom(gw);
   var yy = irandom(gh);
-  if ds[# xx, yy] == 0 ds[# xx, yy] = 1;
+  if (ds[# xx, yy] == 0) ds[# xx, yy] = 1;
   }
 `,
 
