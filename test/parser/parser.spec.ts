@@ -116,7 +116,7 @@ total = 0;
 repeat (10)
     {
     total += array[i];
-    i += 1
+    i += 1;
     }
 draw_text(32, 32, total);
 }`,
