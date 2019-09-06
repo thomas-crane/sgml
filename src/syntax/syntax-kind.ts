@@ -97,6 +97,7 @@ export enum SyntaxKind {
   ContinueStatement,
   ExitStatement,
   DoStatement,
+  ForStatement,
   SwitchStatement,
   CaseStatement,
   DefaultStatement,
