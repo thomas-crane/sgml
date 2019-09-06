@@ -90,6 +90,7 @@ export enum SyntaxKind {
   BlockStatement,
   AssignmentStatement,
   LocalDeclarationStatement,
+  LocalDeclarationListStatement,
   IfStatement,
   RepeatStatement,
   WhileStatement,

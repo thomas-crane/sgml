@@ -1,26 +1,21 @@
 import { SyntaxKind } from '../syntax/syntax-kind';
+import { SyntaxNode } from '../syntax/syntax-node';
 import { SyntaxToken } from '../syntax/syntax-token';
 import { TextSpan } from '../syntax/text-span';
-import { ExpressionSyntax } from './expression-syntax';
-import { IdentifierExpression } from './identifier-expression';
 import { StatementSyntax } from './statement-syntax';
 
-export class LocalDeclarationStatement extends StatementSyntax {
-  kind = SyntaxKind.LocalDeclarationStatement;
+export class LocalDeclarationListStatement extends StatementSyntax {
+  kind = SyntaxKind.LocalDeclarationListStatement;
   children = [
     this.varToken,
-    this.identifier,
-    this.equals,
-    this.initialiser,
+    ...this.declarations,
     this.semicolon,
   ];
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
     readonly varToken: SyntaxToken,
-    readonly identifier: IdentifierExpression,
-    readonly equals: SyntaxToken,
-    readonly initialiser: ExpressionSyntax,
+    readonly declarations: SyntaxNode[],
     readonly semicolon: SyntaxToken,
   ) {
     super();

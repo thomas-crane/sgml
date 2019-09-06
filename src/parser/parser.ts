@@ -19,6 +19,7 @@ import { IdentifierExpression } from '../ast/identifier-expression';
 import { IfStatement } from '../ast/if-statement';
 import { IntLiteralExpression } from '../ast/int-literal-expression';
 import { ListAccessExpression } from '../ast/list-access-expression';
+import { LocalDeclarationListStatement } from '../ast/local-declaration-list-statement';
 import { LocalDeclarationStatement } from '../ast/local-declaration-statement';
 import { MapAccessExpression } from '../ast/map-access-expression';
 import { ParenthesisedExpression } from '../ast/parenthesised-expression';
@@ -143,7 +144,10 @@ export class Parser {
       case SyntaxKind.LeftCurlyBracket:
         return this.parseBlockStatement();
       case SyntaxKind.Var:
-        return this.parseLocalDeclarationStatement();
+        if (this.peek(2) !== undefined && this.peek(2)!.kind === SyntaxKind.Equals) {
+          return this.parseLocalDeclarationStatement();
+        }
+        return this.parseLocalDeclarationListStatement();
       case SyntaxKind.If:
         return this.parseIfStatement();
       case SyntaxKind.Repeat:
@@ -191,18 +195,38 @@ export class Parser {
   private parseLocalDeclarationStatement(): LocalDeclarationStatement {
     const varToken = this.consume(SyntaxKind.Var);
     const identifier = this.parseIdentifierExpression();
-    let equals: SyntaxToken | undefined;
-    let initialiser: ExpressionSyntax | undefined;
-    if (this.current.kind === SyntaxKind.Equals) {
-      equals = this.consume(SyntaxKind.Equals);
-      initialiser = this.parseExpression();
-    }
+    const equals = this.consume(SyntaxKind.Equals);
+    const initialiser = this.parseExpression();
     const semicolon = this.consume(SyntaxKind.Semicolon);
     return new LocalDeclarationStatement(
       varToken,
       identifier,
       equals,
       initialiser,
+      semicolon,
+    );
+  }
+
+  private parseLocalDeclarationListStatement(): LocalDeclarationListStatement {
+    const varToken = this.consume(SyntaxKind.Var);
+    const declarations: SyntaxNode[] = [];
+    while (this.current.kind !== SyntaxKind.Semicolon && !this.atEnd) {
+      const start = this.idx;
+      const identifier = this.parseIdentifierExpression();
+      declarations.push(identifier);
+      // if we haven't reached the semicolon, there must
+      // be a comma before we can parse the next identifier.
+      if (this.peek(0)!.kind !== SyntaxKind.Semicolon) {
+        declarations.push(this.consume(SyntaxKind.Comma));
+      }
+      if (this.idx === start) {
+        this.nextToken();
+      }
+    }
+    const semicolon = this.consume(SyntaxKind.Semicolon);
+    return new LocalDeclarationListStatement(
+      varToken,
+      declarations,
       semicolon,
     );
   }
