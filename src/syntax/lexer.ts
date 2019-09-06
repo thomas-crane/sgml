@@ -173,6 +173,9 @@ export class Lexer {
         this.advance();
         // TODO: check for escaped quotes.
       } while (!this.atEnd && this.current !== EOS);
+      // include end quote
+      buf += this.current;
+      this.advance();
       return new SyntaxToken(
         SyntaxKind.StringLiteral,
         new TextSpan(start, buf.length),
