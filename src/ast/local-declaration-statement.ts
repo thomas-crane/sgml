@@ -11,7 +11,7 @@ export class LocalDeclarationStatement extends StatementSyntax {
     this.varToken,
     this.identifier,
     this.equals!,
-    this.expression!,
+    this.initialiser!,
     this.semicolon,
   ].filter((child) => child !== undefined);
   span = TextSpan.flattenNodes(this.children);
@@ -20,7 +20,7 @@ export class LocalDeclarationStatement extends StatementSyntax {
     readonly varToken: SyntaxToken,
     readonly identifier: IdentifierExpression,
     readonly equals: SyntaxToken | undefined,
-    readonly expression: ExpressionSyntax | undefined,
+    readonly initialiser: ExpressionSyntax | undefined,
     readonly semicolon: SyntaxToken,
   ) {
     super();

@@ -3,7 +3,6 @@ import { SyntaxToken } from '../syntax/syntax-token';
 import { TextSpan } from '../syntax/text-span';
 import { ExpressionSyntax } from './expression-syntax';
 import { IdentifierExpression } from './identifier-expression';
-import { IntLiteralExpression } from './int-literal-expression';
 
 export class ListAccessExpression extends ExpressionSyntax {
   kind = SyntaxKind.ListAccessExpression;
@@ -20,7 +19,7 @@ export class ListAccessExpression extends ExpressionSyntax {
     readonly array: IdentifierExpression,
     readonly leftBracket: SyntaxToken,
     readonly pipe: SyntaxToken,
-    readonly index: IntLiteralExpression,
+    readonly index: ExpressionSyntax,
     readonly rightBracket: SyntaxToken,
   ) {
     super();

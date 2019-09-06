@@ -1,7 +1,6 @@
 import { SyntaxKind } from '../syntax/syntax-kind';
 import { SyntaxToken } from '../syntax/syntax-token';
 import { TextSpan } from '../syntax/text-span';
-import { CaseStatement } from './case-statement';
 import { ExpressionSyntax } from './expression-syntax';
 import { StatementSyntax } from './statement-syntax';
 
@@ -13,7 +12,7 @@ export class SwitchStatement extends StatementSyntax {
     this.expression,
     this.rightParen,
     this.leftCurlyBracket,
-    ...this.cases,
+    ...this.statements,
     this.rightCurlyBracket,
   ];
   span = TextSpan.flattenNodes(this.children);
@@ -24,7 +23,7 @@ export class SwitchStatement extends StatementSyntax {
     readonly expression: ExpressionSyntax,
     readonly rightParen: SyntaxToken,
     readonly leftCurlyBracket: SyntaxToken,
-    readonly cases: CaseStatement[],
+    readonly statements: StatementSyntax[],
     readonly rightCurlyBracket: SyntaxToken,
   ) {
     super();

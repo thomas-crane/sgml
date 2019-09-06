@@ -3,7 +3,6 @@ import { SyntaxToken } from '../syntax/syntax-token';
 import { TextSpan } from '../syntax/text-span';
 import { ExpressionSyntax } from './expression-syntax';
 import { IdentifierExpression } from './identifier-expression';
-import { IntLiteralExpression } from './int-literal-expression';
 
 export class GridAccessExpression extends ExpressionSyntax {
   kind = SyntaxKind.GridAccessExpression;
@@ -20,9 +19,9 @@ export class GridAccessExpression extends ExpressionSyntax {
     readonly array: IdentifierExpression,
     readonly leftBracket: SyntaxToken,
     readonly hash: SyntaxToken,
-    readonly firstIndex: IntLiteralExpression,
+    readonly firstIndex: ExpressionSyntax,
     readonly comma: SyntaxToken,
-    readonly secondIndex: IntLiteralExpression,
+    readonly secondIndex: ExpressionSyntax,
     readonly rightBracket: SyntaxToken,
   ) {
     super();

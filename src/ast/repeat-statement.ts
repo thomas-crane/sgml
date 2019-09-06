@@ -1,7 +1,7 @@
 import { SyntaxKind } from '../syntax/syntax-kind';
 import { SyntaxToken } from '../syntax/syntax-token';
 import { TextSpan } from '../syntax/text-span';
-import { IntLiteralExpression } from './int-literal-expression';
+import { ExpressionSyntax } from './expression-syntax';
 import { StatementSyntax } from './statement-syntax';
 
 export class RepeatStatement extends StatementSyntax {
@@ -18,7 +18,7 @@ export class RepeatStatement extends StatementSyntax {
   constructor(
     readonly repeat: SyntaxToken,
     readonly leftParen: SyntaxToken,
-    readonly amount: IntLiteralExpression,
+    readonly amount: ExpressionSyntax,
     readonly rightParen: SyntaxToken,
     readonly statement: StatementSyntax,
   ) {

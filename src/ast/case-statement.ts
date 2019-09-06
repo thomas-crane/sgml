@@ -10,9 +10,6 @@ export class CaseStatement extends StatementSyntax {
     this.caseToken,
     this.expression,
     this.colon,
-    ...this.statements,
-    this.breakToken,
-    this.semicolon,
   ];
   span = TextSpan.flattenNodes(this.children);
 
@@ -20,9 +17,6 @@ export class CaseStatement extends StatementSyntax {
     readonly caseToken: SyntaxToken,
     readonly expression: ExpressionSyntax,
     readonly colon: SyntaxToken,
-    readonly statements: StatementSyntax[],
-    readonly breakToken: SyntaxToken,
-    readonly semicolon: SyntaxToken,
   ) {
     super();
     this.children.forEach((child) => {

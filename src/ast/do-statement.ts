@@ -1,7 +1,6 @@
 import { SyntaxKind } from '../syntax/syntax-kind';
 import { SyntaxToken } from '../syntax/syntax-token';
 import { TextSpan } from '../syntax/text-span';
-import { BlockStatement } from './block-statement';
 import { ExpressionSyntax } from './expression-syntax';
 import { StatementSyntax } from './statement-syntax';
 
@@ -20,7 +19,7 @@ export class DoStatement extends StatementSyntax {
 
   constructor(
     readonly doToken: SyntaxToken,
-    readonly block: BlockStatement,
+    readonly block: StatementSyntax,
     readonly until: SyntaxToken,
     readonly leftParen: SyntaxToken,
     readonly condition: ExpressionSyntax,
