@@ -2,6 +2,9 @@
 
 Safe Game Maker Language.
 
+[![Build Status](https://travis-ci.com/thomas-crane/sgml.svg?token=stAj7zoP2UACMHFzdTXv&branch=master)](https://travis-ci.com/thomas-crane/sgml)
+[![Coverage Status](https://coveralls.io/repos/github/thomas-crane/sgml/badge.svg?branch=master)](https://coveralls.io/github/thomas-crane/sgml?branch=master)
+
 ## Contents
 
 - [SGML](#sgml)
