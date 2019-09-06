@@ -12,6 +12,7 @@ import { DoStatement } from '../ast/do-statement';
 import { ExitStatement } from '../ast/exit-statement';
 import { ExpressionStatement } from '../ast/expression-statement';
 import { ExpressionSyntax } from '../ast/expression-syntax';
+import { ForStatement } from '../ast/for-statement';
 import { GridAccessExpression } from '../ast/grid-access-expression';
 import { HexLiteralExpression } from '../ast/hex-literal-expression';
 import { IdentifierExpression } from '../ast/identifier-expression';
@@ -157,6 +158,8 @@ export class Parser {
         return this.parseExitStatement();
       case SyntaxKind.Do:
         return this.parseDoStatement();
+      case SyntaxKind.For:
+        return this.parseForStatement();
       case SyntaxKind.Switch:
         return this.parseSwitchStatement();
       case SyntaxKind.Case:
@@ -291,6 +294,25 @@ export class Parser {
       condition,
       rightParen,
       semicolon,
+    );
+  }
+
+  private parseForStatement(): ForStatement {
+    const forToken = this.consume(SyntaxKind.For);
+    const leftParen = this.consume(SyntaxKind.LeftParenthesis);
+    const initialiser = this.parseExpressionStatement();
+    const condition = this.parseExpressionStatement();
+    const step = this.parseExpression();
+    const rightParen = this.consume(SyntaxKind.RightParenthesis);
+    const statement = this.parseStatement();
+    return new ForStatement(
+      forToken,
+      leftParen,
+      initialiser,
+      condition,
+      step,
+      rightParen,
+      statement,
     );
   }
 
@@ -439,7 +461,7 @@ export class Parser {
     const expression = this.parseExpression();
     const rightParen = this.consume(SyntaxKind.RightParenthesis);
     const parenExpression = new ParenthesisedExpression(leftParen, expression, rightParen);
-    // parenthesised expressions can also be the target of a property access.
+    // parenthesised expressions can be the target of a property access.
     if (this.current.kind === SyntaxKind.Dot) {
       const dot = this.nextToken();
       const property = this.parseIdentifierExpression();
@@ -492,7 +514,7 @@ export class Parser {
     return new PropertyAccessExpression(target, dot, property);
   }
 
-  private parseCallExpression(): CallExpression {
+  private parseCallExpression(): ExpressionSyntax {
     const callee = this.parseIdentifierExpression();
     const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const args: SyntaxNode[] = [];
@@ -510,7 +532,14 @@ export class Parser {
       }
     }
     const rightParen = this.consume(SyntaxKind.RightParenthesis);
-    return new CallExpression(callee, leftParen, args, rightParen);
+    // call expressions can be the target of a property access.
+    const callExpr = new CallExpression(callee, leftParen, args, rightParen);
+    if (this.current.kind === SyntaxKind.Dot) {
+      const dot = this.nextToken();
+      const property = this.parseIdentifierExpression();
+      return new PropertyAccessExpression(callExpr, dot, property);
+    }
+    return callExpr;
   }
 
   private parseListAccessExpression(): ListAccessExpression {
