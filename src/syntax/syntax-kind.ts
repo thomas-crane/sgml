@@ -31,6 +31,7 @@ export enum SyntaxKind {
   MinusMinus,
   Star,
   Slash,
+  Percent,
   // comparison
   LessThan,
   LessThanEquals,
@@ -98,6 +99,7 @@ export enum SyntaxKind {
   DoStatement,
   SwitchStatement,
   CaseStatement,
+  DefaultStatement,
   WithStatement,
   LastStatement,
 

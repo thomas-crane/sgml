@@ -1,3 +1,4 @@
+import { DiagnosticBag } from '../diagnostics/diagnostic-bag';
 import { match } from './match';
 import { SyntaxKind } from './syntax-kind';
 import { SyntaxNode } from './syntax-node';
@@ -13,7 +14,8 @@ const identifierBody = match(/[A-Za-z_0-9]/);
 
 export class Lexer {
   private idx: number;
-  private src: string;
+  private readonly src: string;
+  private readonly diagnostics: DiagnosticBag;
   private get atEnd(): boolean {
     return this.idx === this.src.length;
   }
@@ -21,9 +23,10 @@ export class Lexer {
   private get current(): string {
     return this.src[this.idx];
   }
-  constructor(src: string) {
+  constructor(src: string, diagnostics: DiagnosticBag) {
     this.idx = 0;
     this.src = src;
+    this.diagnostics = diagnostics;
   }
 
   tokens(): SyntaxToken[] {
@@ -194,7 +197,7 @@ export class Lexer {
         kind = SyntaxKind.Colon;
         break;
       case ',':
-        kind = SyntaxKind.Semicolon;
+        kind = SyntaxKind.Comma;
         break;
       case '!':
         kind = SyntaxKind.Bang;
@@ -244,6 +247,9 @@ export class Lexer {
         break;
       case '/':
         kind = SyntaxKind.Slash;
+        break;
+      case '%':
+        kind = SyntaxKind.Percent;
         break;
       case '=':
         kind = SyntaxKind.Equals;
@@ -402,11 +408,15 @@ export class Lexer {
       }
     }
 
-    return new SyntaxToken(
+    const token = new SyntaxToken(
       kind,
       new TextSpan(start, buf.length),
       buf,
     );
+    if (kind === SyntaxKind.Unknown) {
+      this.diagnostics.reportUnknownCharacter(token);
+    }
+    return token;
   }
 
   private peek(n: number): string | undefined {
