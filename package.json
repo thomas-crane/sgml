@@ -9,7 +9,7 @@
     "lint:tslint": "tslint -p .",
     "lint:editorconfig": "editorconfig-checker",
     "test": "nyc mocha",
-    "coverage": "nyc report --reporter=text-lcov | coverals"
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "husky": {
     "hooks": {
