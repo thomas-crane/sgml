@@ -68,9 +68,6 @@ function getBinaryOperatorPrecedence(op: SyntaxKind): number {
     case SyntaxKind.Div:
     case SyntaxKind.Mod:
     case SyntaxKind.Percent:
-      return 8;
-    case SyntaxKind.PlusPlus:
-    case SyntaxKind.MinusMinus:
       return 7;
     case SyntaxKind.Slash:
     case SyntaxKind.Star:
@@ -570,7 +567,7 @@ export class Parser {
     const leftBracket = this.consume(SyntaxKind.LeftBracket);
     const at = this.consume(SyntaxKind.At);
     const indices: SyntaxNode[] = [];
-    while (this.current.kind !== SyntaxKind.RightParenthesis && !this.atEnd) {
+    while (this.current.kind !== SyntaxKind.RightBracket && !this.atEnd) {
       const start = this.idx;
       const arg = this.parseExpression();
       indices.push(arg);
@@ -597,7 +594,7 @@ export class Parser {
     const array = this.parseIdentifierExpression();
     const leftBracket = this.consume(SyntaxKind.LeftBracket);
     const indices: SyntaxNode[] = [];
-    while (this.current.kind !== SyntaxKind.RightParenthesis && !this.atEnd) {
+    while (this.current.kind !== SyntaxKind.RightBracket && !this.atEnd) {
       const start = this.idx;
       const arg = this.parseExpression();
       indices.push(arg);
