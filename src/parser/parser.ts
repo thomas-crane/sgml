@@ -28,6 +28,7 @@ import { PrefixExpression } from '../ast/prefix-expression';
 import { PropertyAccessExpression } from '../ast/property-access-expression';
 import { RealLiteralExpression } from '../ast/real-literal-expression';
 import { RepeatStatement } from '../ast/repeat-statement';
+import { ReturnStatement } from '../ast/return-statement';
 import { StatementSyntax } from '../ast/statement-syntax';
 import { StringLiteralExpression } from '../ast/string-literal-expression';
 import { SwitchStatement } from '../ast/switch-statement';
@@ -172,6 +173,8 @@ export class Parser {
         return this.parseDefaultStatement();
       case SyntaxKind.With:
         return this.parseWithStatement();
+      case SyntaxKind.Return:
+        return this.parseReturnStatement();
       default:
         return this.parseExpressionStatement();
     }
@@ -375,6 +378,13 @@ export class Parser {
       condition,
       statement,
     );
+  }
+
+  private parseReturnStatement(): ReturnStatement {
+    const returnToken = this.consume(SyntaxKind.Return);
+    const expression = this.parseExpression();
+    const semicolon = this.consume(SyntaxKind.Semicolon);
+    return new ReturnStatement(returnToken, expression, semicolon);
   }
 
   private parseExpressionStatement(): ExpressionStatement {

@@ -104,6 +104,7 @@ export enum SyntaxKind {
   CaseStatement,
   DefaultStatement,
   WithStatement,
+  ReturnStatement,
   LastStatement,
 
   // expressions
