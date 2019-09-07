@@ -2,7 +2,6 @@ import { SyntaxKind } from '../syntax/syntax-kind';
 import { SyntaxToken } from '../syntax/syntax-token';
 import { TextSpan } from '../syntax/text-span';
 import { ExpressionSyntax } from './expression-syntax';
-import { IdentifierExpression } from './identifier-expression';
 
 export class PropertyAccessExpression extends ExpressionSyntax {
   kind = SyntaxKind.PropertyAccessExpression;
@@ -16,7 +15,7 @@ export class PropertyAccessExpression extends ExpressionSyntax {
   constructor(
     readonly target: ExpressionSyntax,
     readonly dot: SyntaxToken,
-    readonly property: IdentifierExpression,
+    readonly property: ExpressionSyntax,
   ) {
     super();
     this.children.forEach((child) => {

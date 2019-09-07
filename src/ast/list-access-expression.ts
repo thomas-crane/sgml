@@ -2,7 +2,6 @@ import { SyntaxKind } from '../syntax/syntax-kind';
 import { SyntaxToken } from '../syntax/syntax-token';
 import { TextSpan } from '../syntax/text-span';
 import { ExpressionSyntax } from './expression-syntax';
-import { IdentifierExpression } from './identifier-expression';
 
 export class ListAccessExpression extends ExpressionSyntax {
   kind = SyntaxKind.ListAccessExpression;
@@ -16,7 +15,7 @@ export class ListAccessExpression extends ExpressionSyntax {
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
-    readonly array: IdentifierExpression,
+    readonly array: ExpressionSyntax,
     readonly leftBracket: SyntaxToken,
     readonly pipe: SyntaxToken,
     readonly index: ExpressionSyntax,

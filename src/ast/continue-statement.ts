@@ -5,12 +5,15 @@ import { StatementSyntax } from './statement-syntax';
 
 export class ContinueStatement extends StatementSyntax {
   kind = SyntaxKind.ContinueStatement;
-  children = [this.continueToken, this.semicolon];
+  children = [
+    this.continueToken,
+    this.semicolon!,
+  ].filter((child) => child !== undefined);
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
     readonly continueToken: SyntaxToken,
-    readonly semicolon: SyntaxToken,
+    readonly semicolon: SyntaxToken | undefined,
   ) {
     super();
     this.children.forEach((child) => {

@@ -12,8 +12,8 @@ export class LocalDeclarationStatement extends StatementSyntax {
     this.identifier,
     this.equals,
     this.initialiser,
-    this.semicolon,
-  ];
+    this.semicolon!,
+  ].filter((child) => child !== undefined);
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
@@ -21,7 +21,7 @@ export class LocalDeclarationStatement extends StatementSyntax {
     readonly identifier: IdentifierExpression,
     readonly equals: SyntaxToken,
     readonly initialiser: ExpressionSyntax,
-    readonly semicolon: SyntaxToken,
+    readonly semicolon: SyntaxToken | undefined,
   ) {
     super();
     this.children.forEach((child) => {

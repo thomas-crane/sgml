@@ -9,14 +9,14 @@ export class ReturnStatement extends StatementSyntax {
   children = [
     this.returnToken,
     this.expression,
-    this.semicolon,
-  ];
+    this.semicolon!,
+  ].filter((child) => child !== undefined);
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
     readonly returnToken: SyntaxToken,
     readonly expression: ExpressionSyntax,
-    readonly semicolon: SyntaxToken,
+    readonly semicolon: SyntaxToken | undefined,
   ) {
     super();
     this.children.forEach((child) => {

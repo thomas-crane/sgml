@@ -21,7 +21,7 @@ export class ForStatement extends StatementSyntax {
   constructor(
     readonly forToken: SyntaxToken,
     readonly leftParen: SyntaxToken | undefined,
-    readonly initialiser: ExpressionStatement,
+    readonly initialiser: StatementSyntax,
     readonly condition: ExpressionStatement,
     readonly step: ExpressionSyntax,
     readonly rightParen: SyntaxToken | undefined,

@@ -2,12 +2,11 @@ import { SyntaxKind } from '../syntax/syntax-kind';
 import { SyntaxToken } from '../syntax/syntax-token';
 import { TextSpan } from '../syntax/text-span';
 import { ExpressionSyntax } from './expression-syntax';
-import { IdentifierExpression } from './identifier-expression';
 
 export class GridAccessExpression extends ExpressionSyntax {
   kind = SyntaxKind.GridAccessExpression;
   children = [
-    this.array,
+    this.grid,
     this.leftBracket,
     this.hash,
     this.firstIndex,
@@ -16,7 +15,7 @@ export class GridAccessExpression extends ExpressionSyntax {
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
-    readonly array: IdentifierExpression,
+    readonly grid: ExpressionSyntax,
     readonly leftBracket: SyntaxToken,
     readonly hash: SyntaxToken,
     readonly firstIndex: ExpressionSyntax,

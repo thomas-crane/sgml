@@ -6,12 +6,15 @@ import { StatementSyntax } from './statement-syntax';
 
 export class ExpressionStatement extends StatementSyntax {
   kind = SyntaxKind.ExpressionStatement;
-  children = [this.expression, this.semicolon];
+  children = [
+    this.expression,
+    this.semicolon!,
+  ].filter((child) => child !== undefined);
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
     readonly expression: ExpressionSyntax,
-    readonly semicolon: SyntaxToken,
+    readonly semicolon: SyntaxToken | undefined,
   ) {
     super();
     this.children.forEach((child) => {

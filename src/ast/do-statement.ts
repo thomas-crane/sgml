@@ -11,8 +11,8 @@ export class DoStatement extends StatementSyntax {
     this.block,
     this.until,
     this.condition,
-    this.semicolon,
-  ];
+    this.semicolon!,
+  ].filter((child) => child !== undefined);
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
@@ -20,7 +20,7 @@ export class DoStatement extends StatementSyntax {
     readonly block: StatementSyntax,
     readonly until: SyntaxToken,
     readonly condition: ExpressionSyntax,
-    readonly semicolon: SyntaxToken,
+    readonly semicolon: SyntaxToken | undefined,
   ) {
     super();
     this.children.forEach((child) => {
