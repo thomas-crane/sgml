@@ -14,7 +14,7 @@ function unwrap(root: SyntaxRoot): BinaryExpression {
 }
 
 describe('Parser', () => {
-  describe('#parseRoot()', () => {
+  describe('binary operations.', () => {
     it('should be able to parse binary operation expressions.', () => {
       const parser = new Parser('1 + 2;', diagnosticBag);
       const root = parser.parseRoot();
