@@ -426,8 +426,19 @@ export class Parser {
       const operand = this.parseUnaryExpression();
       return new UnaryExpression(operatorToken, operand);
     } else {
-      return this.parsePrimaryExpression();
+      return this.parsePostfixExpression();
     }
+  }
+
+  private parsePostfixExpression(): ExpressionSyntax {
+    const expression = this.parsePrimaryExpression();
+    switch (this.current.kind) {
+      case SyntaxKind.PlusPlus:
+      case SyntaxKind.MinusMinus:
+        const opToken = this.nextToken();
+        return new PostfixExpression(expression, opToken);
+    }
+    return expression;
   }
 
   private parsePrimaryExpression(): ExpressionSyntax {
@@ -451,9 +462,6 @@ export class Parser {
       case SyntaxKind.Identifier:
         if (this.peek(1) !== undefined) {
           switch (this.peek(1)!.kind) {
-            case SyntaxKind.PlusPlus:
-            case SyntaxKind.MinusMinus:
-              return this.parsePostfixExpression();
             case SyntaxKind.Dot:
               return this.parsePropertyAccessExpression();
             case SyntaxKind.LeftParenthesis:
@@ -521,14 +529,8 @@ export class Parser {
 
   private parsePrefixExpression(): PrefixExpression {
     const opToken = this.nextToken();
-    const operand = this.parseIdentifierExpression();
+    const operand = this.parseExpression();
     return new PrefixExpression(opToken, operand);
-  }
-
-  private parsePostfixExpression(): PostfixExpression {
-    const operand = this.parseIdentifierExpression();
-    const opToken = this.nextToken();
-    return new PostfixExpression(operand, opToken);
   }
 
   private parsePropertyAccessExpression(): PropertyAccessExpression {
