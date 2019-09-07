@@ -15,25 +15,25 @@ strength = 5.5;
 armour = -2;
 `,
 
-// 1
+  // 1
   `var xx,yy;
 xx = x - 32 +irandom(64);
 yy = y - 32 +irandom(64);
 instance_create(xx, yy, obj_blood);
 `,
 
-// 2
+  // 2
   `global.food = 5;
 `,
 
-// 3
+  // 3
   `var inst = instance_position(mouse_x, mouse_y, all);
 if (instance_exists(inst))    {
   inst.speed = 0;
   }
 `,
 
-// 4
+  // 4
   `array[2] = 0;
 array[1] = 0;
 array[0] = 0;
@@ -48,15 +48,15 @@ array[count] = "Hello!";
 count -= 1;
 `,
 
-// 5
+  // 5
   `instance_nearest(x, y, obj).speed = 0;
 `,
 
-// 6
+  // 6
   `(instance_nearest(x,y,obj)).speed = 0;
 `,
 
-// 7
+  // 7
   `ds = ds_list_create();
 var index = 0;
 repeat(10)
@@ -65,14 +65,14 @@ repeat(10)
   }
 `,
 
-// 8
+  // 8
   `ds = ds_map_create();
 ds[? "Name"] = "Hamish";
 ds[? "Company"] = "MacSeweeny Games";
 ds[? "Game"] = "Catch The Haggis";
 `,
 
-// 9
+  // 9
   `ds = ds_grid_create();
 ds_grid_clear(ds, 0);
 var gw = ds_grid_width(ds) - 1;
@@ -85,7 +85,7 @@ repeat(10)
   }
 `,
 
-// 10
+  // 10
   `var a = argument0; var i = 0; repeat(25)
 {
 i = irandom(99);
@@ -97,7 +97,7 @@ a[@ i] = 100;
 }
 `,
 
-// 11
+  // 11
   `if (x < 200)
 {
 x += 4;
@@ -108,7 +108,7 @@ x -= 4;
 }
 `,
 
-// 12
+  // 12
   `{
 var i, total;
 i = 0;
@@ -121,7 +121,7 @@ repeat (10)
 draw_text(32, 32, total);
 }`,
 
-// 13
+  // 13
   `{
 while (!place_free(x, y))
     {
@@ -131,7 +131,7 @@ while (!place_free(x, y))
 }
 `,
 
-// 14
+  // 14
   `{
 do
     {
@@ -141,7 +141,7 @@ do
 until (place_free(x, y)); }
 `,
 
-// 15
+  // 15
   `{
 var i;
 for (i = 0; i < 10; i += 1)
@@ -151,7 +151,7 @@ for (i = 0; i < 10; i += 1)
 }
 `,
 
-// 16
+  // 16
   `{
 switch (keyboard_key)
     {
@@ -174,6 +174,50 @@ switch (keyboard_key)
     }
 }
 `,
+
+  // 17
+  `{
+var i;
+for (i = 0; i < 10; i += 1)
+  {
+  if array[i] = 234 break;
+  }
+num = i;
+}
+`,
+
+  // 18
+  `{
+var i;
+for (i = 0; i < 10; i += 1)
+    {
+    if array[i] = "" continue;
+    array[i] = "";
+    }
+}
+`,
+
+  // 19
+  `{
+if invisible exit;
+while (place_meeting(x, y))
+  {
+  x -= lengthdir_x(1, direction - 180);
+  y -= lengthdir_y(1, direction - 180);
+  }
+}
+`,
+
+// 20
+  `var inst;
+inst = noone;
+with (obj_ball)
+  {
+  if str > other.str inst = id;
+  }
+if inst != noone target = inst;
+`,
+
 ];
 
 describe('Parser', () => {
