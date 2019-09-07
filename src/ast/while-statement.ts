@@ -8,18 +8,14 @@ export class WhileStatement extends StatementSyntax {
   kind = SyntaxKind.WhileStatement;
   children = [
     this.whileToken,
-    this.leftParen,
     this.condition,
-    this.rightParen,
     this.statement,
   ];
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
     readonly whileToken: SyntaxToken,
-    readonly leftParen: SyntaxToken,
     readonly condition: ExpressionSyntax,
-    readonly rightParen: SyntaxToken,
     readonly statement: StatementSyntax,
   ) {
     super();

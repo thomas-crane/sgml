@@ -9,22 +9,22 @@ export class ForStatement extends StatementSyntax {
   kind = SyntaxKind.ForStatement;
   children = [
     this.forToken,
-    this.leftParen,
+    this.leftParen!,
     this.initialiser,
     this.condition,
     this.step,
-    this.rightParen,
+    this.rightParen!,
     this.statement,
-  ];
+  ].filter((child) => child !== undefined);
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
     readonly forToken: SyntaxToken,
-    readonly leftParen: SyntaxToken,
+    readonly leftParen: SyntaxToken | undefined,
     readonly initialiser: ExpressionStatement,
     readonly condition: ExpressionStatement,
     readonly step: ExpressionSyntax,
-    readonly rightParen: SyntaxToken,
+    readonly rightParen: SyntaxToken | undefined,
     readonly statement: StatementSyntax,
   ) {
     super();

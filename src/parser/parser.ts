@@ -233,9 +233,7 @@ export class Parser {
 
   private parseIfStatement(): IfStatement {
     const ifToken = this.consume(SyntaxKind.If);
-    const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const condition = this.parseExpression();
-    const rightParen = this.consume(SyntaxKind.RightParenthesis);
     const thenBlock = this.parseStatement();
     let elseToken: SyntaxToken | undefined;
     let elseBlock: StatementSyntax | undefined;
@@ -245,9 +243,7 @@ export class Parser {
     }
     return new IfStatement(
       ifToken,
-      leftParen,
       condition,
-      rightParen,
       thenBlock,
       elseToken,
       elseBlock,
@@ -256,30 +252,22 @@ export class Parser {
 
   private parseRepeatStatement(): RepeatStatement {
     const repeat = this.consume(SyntaxKind.Repeat);
-    const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const amount = this.parseExpression();
-    const rightParen = this.consume(SyntaxKind.RightParenthesis);
     const statement = this.parseStatement();
     return new RepeatStatement(
       repeat,
-      leftParen,
       amount,
-      rightParen,
       statement,
     );
   }
 
   private parseWhileStatement(): WhileStatement {
     const whileToken = this.consume(SyntaxKind.While);
-    const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const condition = this.parseExpression();
-    const rightParen = this.consume(SyntaxKind.RightParenthesis);
     const statement = this.parseStatement();
     return new WhileStatement(
       whileToken,
-      leftParen,
       condition,
-      rightParen,
       statement,
     );
   }
@@ -306,28 +294,30 @@ export class Parser {
     const doToken = this.consume(SyntaxKind.Do);
     const statement = this.parseStatement();
     const until = this.consume(SyntaxKind.Until);
-    const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const condition = this.parseExpression();
-    const rightParen = this.consume(SyntaxKind.RightParenthesis);
     const semicolon = this.consume(SyntaxKind.Semicolon);
     return new DoStatement(
       doToken,
       statement,
       until,
-      leftParen,
       condition,
-      rightParen,
       semicolon,
     );
   }
 
   private parseForStatement(): ForStatement {
     const forToken = this.consume(SyntaxKind.For);
-    const leftParen = this.consume(SyntaxKind.LeftParenthesis);
+    let leftParen: SyntaxToken | undefined;
+    if (this.current.kind === SyntaxKind.LeftParenthesis) {
+      leftParen = this.consume(SyntaxKind.LeftParenthesis);
+    }
     const initialiser = this.parseExpressionStatement();
     const condition = this.parseExpressionStatement();
     const step = this.parseExpression();
-    const rightParen = this.consume(SyntaxKind.RightParenthesis);
+    let rightParen: SyntaxToken | undefined;
+    if (leftParen !== undefined) {
+      rightParen = this.consume(SyntaxKind.RightParenthesis);
+    }
     const statement = this.parseStatement();
     return new ForStatement(
       forToken,
@@ -342,9 +332,7 @@ export class Parser {
 
   private parseSwitchStatement(): SwitchStatement {
     const switchToken = this.consume(SyntaxKind.Switch);
-    const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const condition = this.parseExpression();
-    const rightParen = this.consume(SyntaxKind.RightParenthesis);
     const leftCurlyBracket = this.consume(SyntaxKind.LeftCurlyBracket);
     const statements: StatementSyntax[] = [];
     while (this.current.kind !== SyntaxKind.RightCurlyBracket && !this.atEnd) {
@@ -358,9 +346,7 @@ export class Parser {
     const rightCurlyBracket = this.consume(SyntaxKind.RightCurlyBracket);
     return new SwitchStatement(
       switchToken,
-      leftParen,
       condition,
-      rightParen,
       leftCurlyBracket,
       statements,
       rightCurlyBracket,
@@ -382,15 +368,11 @@ export class Parser {
 
   private parseWithStatement(): WithStatement {
     const withToken = this.consume(SyntaxKind.With);
-    const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const condition = this.parseExpression();
-    const rightParen = this.consume(SyntaxKind.RightParenthesis);
     const statement = this.parseStatement();
     return new WithStatement(
       withToken,
-      leftParen,
       condition,
-      rightParen,
       statement,
     );
   }

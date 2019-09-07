@@ -8,9 +8,7 @@ export class IfStatement extends StatementSyntax {
   kind = SyntaxKind.IfStatement;
   children = [
     this.ifToken,
-    this.leftParen,
     this.condition,
-    this.rightParen,
     this.thenBlock,
     this.elseToken!,
     this.elseBlock!,
@@ -19,9 +17,7 @@ export class IfStatement extends StatementSyntax {
 
   constructor(
     readonly ifToken: SyntaxToken,
-    readonly leftParen: SyntaxToken,
     readonly condition: ExpressionSyntax,
-    readonly rightParen: SyntaxToken,
     readonly thenBlock: StatementSyntax,
     readonly elseToken: SyntaxToken | undefined,
     readonly elseBlock: StatementSyntax | undefined,
