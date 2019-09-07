@@ -92,7 +92,7 @@ function getBinaryOperatorPrecedence(op: SyntaxKind): number {
     case SyntaxKind.EqualsEquals:
       return 3;
     case SyntaxKind.AmpersandAmpersand:
-    case SyntaxKind.AmpersandAmpersand:
+    case SyntaxKind.PipePipe:
     case SyntaxKind.CaretCaret:
       return 2;
     case SyntaxKind.Equals:
