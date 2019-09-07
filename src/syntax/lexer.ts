@@ -405,6 +405,9 @@ export class Lexer {
         case 'enum':
           kind = SyntaxKind.Enum;
           break;
+        case 'return':
+          kind = SyntaxKind.Return;
+          break;
         default:
           kind = SyntaxKind.Identifier;
           break;

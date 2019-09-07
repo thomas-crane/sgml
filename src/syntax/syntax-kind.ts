@@ -75,6 +75,7 @@ export enum SyntaxKind {
   Exit,
   With,
   Enum,
+  Return,
   LastToken,
 
   // trivia
