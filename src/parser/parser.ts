@@ -511,7 +511,7 @@ export class Parser {
 
   private parsePrefixExpression(): PrefixExpression {
     const opToken = this.nextToken();
-    const operand = this.parseExpression();
+    const operand = this.parsePrimaryExpression();
     return new PrefixExpression(opToken, operand);
   }
 

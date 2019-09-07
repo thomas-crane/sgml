@@ -50,5 +50,10 @@ describe('Parser', () => {
       const root = parser.parseRoot();
       expect(unwrap(root).opToken.kind).to.equal(SyntaxKind.Star);
     });
+    it('should not bind as tightly as prefix or postfix operations.', () => {
+      const parser = new Parser('--a + b++;', diagnosticBag);
+      const root = parser.parseRoot();
+      expect(unwrap(root).kind).to.equal(SyntaxKind.BinaryExpression);
+    });
   });
 });
