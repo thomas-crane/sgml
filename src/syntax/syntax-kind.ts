@@ -87,10 +87,9 @@ export enum SyntaxKind {
 
   // statements
   FirstStatement,
+  TerminatedStatement,
   ExpressionStatement,
   BlockStatement,
-  AssignmentStatement,
-  LocalDeclarationStatement,
   LocalDeclarationListStatement,
   IfStatement,
   RepeatStatement,

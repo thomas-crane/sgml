@@ -7,13 +7,11 @@ export class ExitStatement extends StatementSyntax {
   kind = SyntaxKind.ExitStatement;
   children = [
     this.exit,
-    this.semicolon!,
-  ].filter((child) => child !== undefined);
+  ];
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
     readonly exit: SyntaxToken,
-    readonly semicolon: SyntaxToken | undefined,
   ) {
     super();
     this.children.forEach((child) => {

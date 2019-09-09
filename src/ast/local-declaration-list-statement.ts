@@ -9,14 +9,12 @@ export class LocalDeclarationListStatement extends StatementSyntax {
   children = [
     this.varToken,
     ...this.declarations,
-    this.semicolon!,
-  ].filter((child) => child !== undefined);
+  ];
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
     readonly varToken: SyntaxToken,
     readonly declarations: SyntaxNode[],
-    readonly semicolon: SyntaxToken | undefined,
   ) {
     super();
     this.children.forEach((child) => {
