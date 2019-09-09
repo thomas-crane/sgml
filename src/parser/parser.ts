@@ -31,6 +31,7 @@ import { ReturnStatement } from '../ast/return-statement';
 import { StatementSyntax } from '../ast/statement-syntax';
 import { StringLiteralExpression } from '../ast/string-literal-expression';
 import { SwitchStatement } from '../ast/switch-statement';
+import { TerminatedStatement } from '../ast/terminated-statement';
 import { UnaryExpression } from '../ast/unary-expression';
 import { WhileStatement } from '../ast/while-statement';
 import { WithStatement } from '../ast/with-statement';
@@ -140,40 +141,62 @@ export class Parser {
   }
 
   private parseStatement(): StatementSyntax {
+    let statement: StatementSyntax;
     switch (this.current.kind) {
       case SyntaxKind.LeftCurlyBracket:
-        return this.parseBlockStatement();
+        statement = this.parseBlockStatement();
+        break;
       case SyntaxKind.Var:
-        return this.parseLocalDeclarationListStatement();
+        statement = this.parseLocalDeclarationListStatement();
+        break;
       case SyntaxKind.If:
-        return this.parseIfStatement();
+        statement = this.parseIfStatement();
+        break;
       case SyntaxKind.Repeat:
-        return this.parseRepeatStatement();
+        statement = this.parseRepeatStatement();
+        break;
       case SyntaxKind.While:
-        return this.parseWhileStatement();
+        statement = this.parseWhileStatement();
+        break;
       case SyntaxKind.Break:
-        return this.parseBreakStatement();
+        statement = this.parseBreakStatement();
+        break;
       case SyntaxKind.Continue:
-        return this.parseContinueStatement();
+        statement = this.parseContinueStatement();
+        break;
       case SyntaxKind.Exit:
-        return this.parseExitStatement();
+        statement = this.parseExitStatement();
+        break;
       case SyntaxKind.Do:
-        return this.parseDoStatement();
+        statement = this.parseDoStatement();
+        break;
       case SyntaxKind.For:
-        return this.parseForStatement();
+        statement = this.parseForStatement();
+        break;
       case SyntaxKind.Switch:
-        return this.parseSwitchStatement();
+        statement = this.parseSwitchStatement();
+        break;
       case SyntaxKind.Case:
-        return this.parseCaseStatement();
+        statement = this.parseCaseStatement();
+        break;
       case SyntaxKind.Default:
-        return this.parseDefaultStatement();
+        statement = this.parseDefaultStatement();
+        break;
       case SyntaxKind.With:
-        return this.parseWithStatement();
+        statement = this.parseWithStatement();
+        break;
       case SyntaxKind.Return:
-        return this.parseReturnStatement();
+        statement = this.parseReturnStatement();
+        break;
       default:
-        return this.parseExpressionStatement();
+        statement = this.parseExpressionStatement();
+        break;
     }
+    let semicolon: SyntaxToken | undefined;
+    if (this.current.kind === SyntaxKind.Semicolon) {
+      semicolon = this.consume(SyntaxKind.Semicolon);
+    }
+    return new TerminatedStatement(statement, semicolon);
   }
 
   private parseBlockStatement(): BlockStatement {
@@ -209,14 +232,9 @@ export class Parser {
         this.nextToken();
       }
     }
-    let semicolon: SyntaxToken | undefined;
-    if (this.current.kind === SyntaxKind.Semicolon) {
-      semicolon = this.consume(SyntaxKind.Semicolon);
-    }
     return new LocalDeclarationListStatement(
       varToken,
       declarations,
-      semicolon,
     );
   }
 
@@ -263,29 +281,17 @@ export class Parser {
 
   private parseBreakStatement(): BreakStatement {
     const breakToken = this.consume(SyntaxKind.Break);
-    let semicolon: SyntaxToken | undefined;
-    if (this.current.kind === SyntaxKind.Semicolon) {
-      semicolon = this.consume(SyntaxKind.Semicolon);
-    }
-    return new BreakStatement(breakToken, semicolon);
+    return new BreakStatement(breakToken);
   }
 
   private parseContinueStatement(): ContinueStatement {
     const continueToken = this.consume(SyntaxKind.Continue);
-    let semicolon: SyntaxToken | undefined;
-    if (this.current.kind === SyntaxKind.Semicolon) {
-      semicolon = this.consume(SyntaxKind.Semicolon);
-    }
-    return new ContinueStatement(continueToken, semicolon);
+    return new ContinueStatement(continueToken);
   }
 
   private parseExitStatement(): ExitStatement {
     const exit = this.consume(SyntaxKind.Exit);
-    let semicolon: SyntaxToken | undefined;
-    if (this.current.kind === SyntaxKind.Semicolon) {
-      semicolon = this.consume(SyntaxKind.Semicolon);
-    }
-    return new ExitStatement(exit, semicolon);
+    return new ExitStatement(exit);
   }
 
   private parseDoStatement(): DoStatement {
@@ -293,16 +299,11 @@ export class Parser {
     const statement = this.parseStatement();
     const until = this.consume(SyntaxKind.Until);
     const condition = this.parseExpression();
-    let semicolon: SyntaxToken | undefined;
-    if (this.current.kind === SyntaxKind.Semicolon) {
-      semicolon = this.consume(SyntaxKind.Semicolon);
-    }
     return new DoStatement(
       doToken,
       statement,
       until,
       condition,
-      semicolon,
     );
   }
 
@@ -313,8 +314,8 @@ export class Parser {
       leftParen = this.consume(SyntaxKind.LeftParenthesis);
     }
     const initialiser = this.parseStatement();
-    const condition = this.parseExpressionStatement();
-    const step = this.parseExpression();
+    const condition = this.parseStatement();
+    const step = this.parseStatement();
     let rightParen: SyntaxToken | undefined;
     if (leftParen !== undefined) {
       rightParen = this.consume(SyntaxKind.RightParenthesis);
@@ -381,17 +382,12 @@ export class Parser {
   private parseReturnStatement(): ReturnStatement {
     const returnToken = this.consume(SyntaxKind.Return);
     const expression = this.parseExpression();
-    const semicolon = this.consume(SyntaxKind.Semicolon);
-    return new ReturnStatement(returnToken, expression, semicolon);
+    return new ReturnStatement(returnToken, expression);
   }
 
   private parseExpressionStatement(): ExpressionStatement {
     const expression = this.parseExpression();
-    let semicolon: SyntaxToken | undefined;
-    if (this.current.kind === SyntaxKind.Semicolon) {
-      semicolon = this.consume(SyntaxKind.Semicolon);
-    }
-    return new ExpressionStatement(expression, semicolon);
+    return new ExpressionStatement(expression);
   }
 
   private parseExpression(): ExpressionSyntax {
