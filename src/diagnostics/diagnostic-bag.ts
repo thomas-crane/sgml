@@ -31,7 +31,7 @@ export class DiagnosticBag {
    */
   reportUnexpectedToken(expected: SyntaxKind, actual: SyntaxToken) {
     this.report(
-      `Unexpected ${SyntaxKind[expected]}. Expected ${SyntaxKind[actual.kind]}`,
+      `Unexpected ${SyntaxKind[actual.kind]}. Expected ${SyntaxKind[expected]}`,
       actual.span,
     );
   }

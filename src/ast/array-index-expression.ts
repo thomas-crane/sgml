@@ -3,7 +3,6 @@ import { SyntaxNode } from '../syntax/syntax-node';
 import { SyntaxToken } from '../syntax/syntax-token';
 import { TextSpan } from '../syntax/text-span';
 import { ExpressionSyntax } from './expression-syntax';
-import { IdentifierExpression } from './identifier-expression';
 
 export class ArrayIndexExpression extends ExpressionSyntax {
   kind = SyntaxKind.ArrayIndexExpression;
@@ -16,7 +15,7 @@ export class ArrayIndexExpression extends ExpressionSyntax {
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
-    readonly array: IdentifierExpression,
+    readonly array: ExpressionSyntax,
     readonly leftBracket: SyntaxToken,
     readonly indices: SyntaxNode[],
     readonly rightBracket: SyntaxToken,

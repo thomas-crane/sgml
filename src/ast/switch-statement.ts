@@ -8,9 +8,7 @@ export class SwitchStatement extends StatementSyntax {
   kind = SyntaxKind.SwitchStatement;
   children = [
     this.switchToken,
-    this.leftParen,
     this.expression,
-    this.rightParen,
     this.leftCurlyBracket,
     ...this.statements,
     this.rightCurlyBracket,
@@ -19,9 +17,7 @@ export class SwitchStatement extends StatementSyntax {
 
   constructor(
     readonly switchToken: SyntaxToken,
-    readonly leftParen: SyntaxToken,
     readonly expression: ExpressionSyntax,
-    readonly rightParen: SyntaxToken,
     readonly leftCurlyBracket: SyntaxToken,
     readonly statements: StatementSyntax[],
     readonly rightCurlyBracket: SyntaxToken,

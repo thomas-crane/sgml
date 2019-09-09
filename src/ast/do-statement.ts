@@ -10,10 +10,7 @@ export class DoStatement extends StatementSyntax {
     this.doToken,
     this.block,
     this.until,
-    this.leftParen,
     this.condition,
-    this.rightParen,
-    this.semicolon,
   ];
   span = TextSpan.flattenNodes(this.children);
 
@@ -21,10 +18,7 @@ export class DoStatement extends StatementSyntax {
     readonly doToken: SyntaxToken,
     readonly block: StatementSyntax,
     readonly until: SyntaxToken,
-    readonly leftParen: SyntaxToken,
     readonly condition: ExpressionSyntax,
-    readonly rightParen: SyntaxToken,
-    readonly semicolon: SyntaxToken,
   ) {
     super();
     this.children.forEach((child) => {

@@ -8,18 +8,14 @@ export class WithStatement extends StatementSyntax {
   kind = SyntaxKind.WithStatement;
   children = [
     this.withToken,
-    this.leftParen,
     this.expression,
-    this.rightParen,
     this.statement,
   ];
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
     readonly withToken: SyntaxToken,
-    readonly leftParen: SyntaxToken,
     readonly expression: ExpressionSyntax,
-    readonly rightParen: SyntaxToken,
     readonly statement: StatementSyntax,
   ) {
     super();

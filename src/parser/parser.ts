@@ -12,13 +12,14 @@ import { DoStatement } from '../ast/do-statement';
 import { ExitStatement } from '../ast/exit-statement';
 import { ExpressionStatement } from '../ast/expression-statement';
 import { ExpressionSyntax } from '../ast/expression-syntax';
+import { ForStatement } from '../ast/for-statement';
 import { GridAccessExpression } from '../ast/grid-access-expression';
 import { HexLiteralExpression } from '../ast/hex-literal-expression';
 import { IdentifierExpression } from '../ast/identifier-expression';
 import { IfStatement } from '../ast/if-statement';
 import { IntLiteralExpression } from '../ast/int-literal-expression';
 import { ListAccessExpression } from '../ast/list-access-expression';
-import { LocalDeclarationStatement } from '../ast/local-declaration-statement';
+import { LocalDeclarationListStatement } from '../ast/local-declaration-list-statement';
 import { MapAccessExpression } from '../ast/map-access-expression';
 import { ParenthesisedExpression } from '../ast/parenthesised-expression';
 import { PostfixExpression } from '../ast/postfix-expression';
@@ -26,9 +27,11 @@ import { PrefixExpression } from '../ast/prefix-expression';
 import { PropertyAccessExpression } from '../ast/property-access-expression';
 import { RealLiteralExpression } from '../ast/real-literal-expression';
 import { RepeatStatement } from '../ast/repeat-statement';
+import { ReturnStatement } from '../ast/return-statement';
 import { StatementSyntax } from '../ast/statement-syntax';
 import { StringLiteralExpression } from '../ast/string-literal-expression';
 import { SwitchStatement } from '../ast/switch-statement';
+import { TerminatedStatement } from '../ast/terminated-statement';
 import { UnaryExpression } from '../ast/unary-expression';
 import { WhileStatement } from '../ast/while-statement';
 import { WithStatement } from '../ast/with-statement';
@@ -68,9 +71,6 @@ function getBinaryOperatorPrecedence(op: SyntaxKind): number {
     case SyntaxKind.Div:
     case SyntaxKind.Mod:
     case SyntaxKind.Percent:
-      return 8;
-    case SyntaxKind.PlusPlus:
-    case SyntaxKind.MinusMinus:
       return 7;
     case SyntaxKind.Slash:
     case SyntaxKind.Star:
@@ -92,12 +92,13 @@ function getBinaryOperatorPrecedence(op: SyntaxKind): number {
     case SyntaxKind.EqualsEquals:
       return 3;
     case SyntaxKind.AmpersandAmpersand:
-    case SyntaxKind.AmpersandAmpersand:
+    case SyntaxKind.PipePipe:
     case SyntaxKind.CaretCaret:
       return 2;
     case SyntaxKind.Equals:
     case SyntaxKind.PlusEquals:
     case SyntaxKind.MinusEquals:
+    case SyntaxKind.StarEquals:
       return 1;
     default:
       return 0;
@@ -141,36 +142,62 @@ export class Parser {
   }
 
   private parseStatement(): StatementSyntax {
+    let statement: StatementSyntax;
     switch (this.current.kind) {
       case SyntaxKind.LeftCurlyBracket:
-        return this.parseBlockStatement();
+        statement = this.parseBlockStatement();
+        break;
       case SyntaxKind.Var:
-        return this.parseLocalDeclarationStatement();
+        statement = this.parseLocalDeclarationListStatement();
+        break;
       case SyntaxKind.If:
-        return this.parseIfStatement();
+        statement = this.parseIfStatement();
+        break;
       case SyntaxKind.Repeat:
-        return this.parseRepeatStatement();
+        statement = this.parseRepeatStatement();
+        break;
       case SyntaxKind.While:
-        return this.parseWhileStatement();
+        statement = this.parseWhileStatement();
+        break;
       case SyntaxKind.Break:
-        return this.parseBreakStatement();
+        statement = this.parseBreakStatement();
+        break;
       case SyntaxKind.Continue:
-        return this.parseContinueStatement();
+        statement = this.parseContinueStatement();
+        break;
       case SyntaxKind.Exit:
-        return this.parseExitStatement();
+        statement = this.parseExitStatement();
+        break;
       case SyntaxKind.Do:
-        return this.parseDoStatement();
+        statement = this.parseDoStatement();
+        break;
+      case SyntaxKind.For:
+        statement = this.parseForStatement();
+        break;
       case SyntaxKind.Switch:
-        return this.parseSwitchStatement();
+        statement = this.parseSwitchStatement();
+        break;
       case SyntaxKind.Case:
-        return this.parseCaseStatement();
+        statement = this.parseCaseStatement();
+        break;
       case SyntaxKind.Default:
-        return this.parseDefaultStatement();
+        statement = this.parseDefaultStatement();
+        break;
       case SyntaxKind.With:
-        return this.parseWithStatement();
+        statement = this.parseWithStatement();
+        break;
+      case SyntaxKind.Return:
+        statement = this.parseReturnStatement();
+        break;
       default:
-        return this.parseExpressionStatement();
+        statement = this.parseExpressionStatement();
+        break;
     }
+    let semicolon: SyntaxToken | undefined;
+    if (this.current.kind === SyntaxKind.Semicolon) {
+      semicolon = this.consume(SyntaxKind.Semicolon);
+    }
+    return new TerminatedStatement(statement, semicolon);
   }
 
   private parseBlockStatement(): BlockStatement {
@@ -188,30 +215,29 @@ export class Parser {
     return new BlockStatement(leftCurlyBracket, statements, rightCurlyBracket);
   }
 
-  private parseLocalDeclarationStatement(): LocalDeclarationStatement {
+  private parseLocalDeclarationListStatement(): LocalDeclarationListStatement {
     const varToken = this.consume(SyntaxKind.Var);
-    const identifier = this.parseIdentifierExpression();
-    let equals: SyntaxToken | undefined;
-    let initialiser: ExpressionSyntax | undefined;
-    if (this.current.kind === SyntaxKind.Equals) {
-      equals = this.consume(SyntaxKind.Equals);
-      initialiser = this.parseExpression();
+    const declarations: SyntaxNode[] = [];
+    while (!this.atEnd) {
+      const expression = this.parseExpression();
+      declarations.push(expression);
+      // if there is no comma we have
+      // reached the end of the list.
+      if (this.peek(0)!.kind === SyntaxKind.Comma) {
+        declarations.push(this.consume(SyntaxKind.Comma));
+      } else {
+        break;
+      }
     }
-    const semicolon = this.consume(SyntaxKind.Semicolon);
-    return new LocalDeclarationStatement(
+    return new LocalDeclarationListStatement(
       varToken,
-      identifier,
-      equals,
-      initialiser,
-      semicolon,
+      declarations,
     );
   }
 
   private parseIfStatement(): IfStatement {
     const ifToken = this.consume(SyntaxKind.If);
-    const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const condition = this.parseExpression();
-    const rightParen = this.consume(SyntaxKind.RightParenthesis);
     const thenBlock = this.parseStatement();
     let elseToken: SyntaxToken | undefined;
     let elseBlock: StatementSyntax | undefined;
@@ -221,9 +247,7 @@ export class Parser {
     }
     return new IfStatement(
       ifToken,
-      leftParen,
       condition,
-      rightParen,
       thenBlock,
       elseToken,
       elseBlock,
@@ -232,76 +256,82 @@ export class Parser {
 
   private parseRepeatStatement(): RepeatStatement {
     const repeat = this.consume(SyntaxKind.Repeat);
-    const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const amount = this.parseExpression();
-    const rightParen = this.consume(SyntaxKind.RightParenthesis);
     const statement = this.parseStatement();
     return new RepeatStatement(
       repeat,
-      leftParen,
       amount,
-      rightParen,
       statement,
     );
   }
 
   private parseWhileStatement(): WhileStatement {
     const whileToken = this.consume(SyntaxKind.While);
-    const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const condition = this.parseExpression();
-    const rightParen = this.consume(SyntaxKind.RightParenthesis);
     const statement = this.parseStatement();
     return new WhileStatement(
       whileToken,
-      leftParen,
       condition,
-      rightParen,
       statement,
     );
   }
 
   private parseBreakStatement(): BreakStatement {
     const breakToken = this.consume(SyntaxKind.Break);
-    const semicolon = this.consume(SyntaxKind.Semicolon);
-    return new BreakStatement(breakToken, semicolon);
+    return new BreakStatement(breakToken);
   }
 
   private parseContinueStatement(): ContinueStatement {
     const continueToken = this.consume(SyntaxKind.Continue);
-    const semicolon = this.consume(SyntaxKind.Semicolon);
-    return new ContinueStatement(continueToken, semicolon);
+    return new ContinueStatement(continueToken);
   }
 
   private parseExitStatement(): ExitStatement {
     const exit = this.consume(SyntaxKind.Exit);
-    const semicolon = this.consume(SyntaxKind.Semicolon);
-    return new ExitStatement(exit, semicolon);
+    return new ExitStatement(exit);
   }
 
   private parseDoStatement(): DoStatement {
     const doToken = this.consume(SyntaxKind.Do);
     const statement = this.parseStatement();
     const until = this.consume(SyntaxKind.Until);
-    const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const condition = this.parseExpression();
-    const rightParen = this.consume(SyntaxKind.RightParenthesis);
-    const semicolon = this.consume(SyntaxKind.Semicolon);
     return new DoStatement(
       doToken,
       statement,
       until,
-      leftParen,
       condition,
+    );
+  }
+
+  private parseForStatement(): ForStatement {
+    const forToken = this.consume(SyntaxKind.For);
+    let leftParen: SyntaxToken | undefined;
+    if (this.current.kind === SyntaxKind.LeftParenthesis) {
+      leftParen = this.consume(SyntaxKind.LeftParenthesis);
+    }
+    const initialiser = this.parseStatement();
+    const condition = this.parseStatement();
+    const step = this.parseStatement();
+    let rightParen: SyntaxToken | undefined;
+    if (leftParen !== undefined) {
+      rightParen = this.consume(SyntaxKind.RightParenthesis);
+    }
+    const statement = this.parseStatement();
+    return new ForStatement(
+      forToken,
+      leftParen,
+      initialiser,
+      condition,
+      step,
       rightParen,
-      semicolon,
+      statement,
     );
   }
 
   private parseSwitchStatement(): SwitchStatement {
     const switchToken = this.consume(SyntaxKind.Switch);
-    const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const condition = this.parseExpression();
-    const rightParen = this.consume(SyntaxKind.RightParenthesis);
     const leftCurlyBracket = this.consume(SyntaxKind.LeftCurlyBracket);
     const statements: StatementSyntax[] = [];
     while (this.current.kind !== SyntaxKind.RightCurlyBracket && !this.atEnd) {
@@ -315,9 +345,7 @@ export class Parser {
     const rightCurlyBracket = this.consume(SyntaxKind.RightCurlyBracket);
     return new SwitchStatement(
       switchToken,
-      leftParen,
       condition,
-      rightParen,
       leftCurlyBracket,
       statements,
       rightCurlyBracket,
@@ -339,23 +367,24 @@ export class Parser {
 
   private parseWithStatement(): WithStatement {
     const withToken = this.consume(SyntaxKind.With);
-    const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const condition = this.parseExpression();
-    const rightParen = this.consume(SyntaxKind.RightParenthesis);
     const statement = this.parseStatement();
     return new WithStatement(
       withToken,
-      leftParen,
       condition,
-      rightParen,
       statement,
     );
   }
 
+  private parseReturnStatement(): ReturnStatement {
+    const returnToken = this.consume(SyntaxKind.Return);
+    const expression = this.parseExpression();
+    return new ReturnStatement(returnToken, expression);
+  }
+
   private parseExpressionStatement(): ExpressionStatement {
     const expression = this.parseExpression();
-    const semicolon = this.consume(SyntaxKind.Semicolon);
-    return new ExpressionStatement(expression, semicolon);
+    return new ExpressionStatement(expression);
   }
 
   private parseExpression(): ExpressionSyntax {
@@ -383,8 +412,49 @@ export class Parser {
       const operand = this.parseUnaryExpression();
       return new UnaryExpression(operatorToken, operand);
     } else {
-      return this.parsePrimaryExpression();
+      return this.parsePostfixExpression();
     }
+  }
+
+  private parsePostfixExpression(): ExpressionSyntax {
+    const expression = this.parsePropertyAccessExpression();
+    switch (this.current.kind) {
+      case SyntaxKind.PlusPlus:
+      case SyntaxKind.MinusMinus:
+        const opToken = this.nextToken();
+        return new PostfixExpression(expression, opToken);
+    }
+    return expression;
+  }
+
+  private parsePropertyAccessExpression(): ExpressionSyntax {
+    const expression = this.parseAccessExpression();
+    if (this.current.kind === SyntaxKind.Dot) {
+      const dot = this.consume(SyntaxKind.Dot);
+      const property = this.parseExpression();
+      return new PropertyAccessExpression(expression, dot, property);
+    }
+    return expression;
+  }
+
+  private parseAccessExpression(): ExpressionSyntax {
+    const expression = this.parsePrimaryExpression();
+    if (this.current.kind !== SyntaxKind.LeftBracket) {
+      return expression;
+    }
+    if (this.peek(1) !== undefined) {
+      switch (this.peek(1)!.kind) {
+        case SyntaxKind.Pipe:
+          return this.parseListAccessExpression(expression);
+        case SyntaxKind.Hash:
+          return this.parseGridAccessExpression(expression);
+        case SyntaxKind.QuestionMark:
+          return this.parseMapAccessExpression(expression);
+        case SyntaxKind.At:
+          return this.parseArrayAccessExpression(expression);
+      }
+    }
+    return this.parseArrayIndexExpression(expression);
   }
 
   private parsePrimaryExpression(): ExpressionSyntax {
@@ -408,27 +478,8 @@ export class Parser {
       case SyntaxKind.Identifier:
         if (this.peek(1) !== undefined) {
           switch (this.peek(1)!.kind) {
-            case SyntaxKind.PlusPlus:
-            case SyntaxKind.MinusMinus:
-              return this.parsePostfixExpression();
-            case SyntaxKind.Dot:
-              return this.parsePropertyAccessExpression();
             case SyntaxKind.LeftParenthesis:
               return this.parseCallExpression();
-            case SyntaxKind.LeftBracket:
-              if (this.peek(2) !== undefined) {
-                switch (this.peek(2)!.kind) {
-                  case SyntaxKind.Pipe:
-                    return this.parseListAccessExpression();
-                  case SyntaxKind.QuestionMark:
-                    return this.parseMapAccessExpression();
-                  case SyntaxKind.Hash:
-                    return this.parseGridAccessExpression();
-                  case SyntaxKind.At:
-                    return this.parseArrayAccessExpression();
-                }
-              }
-              return this.parseArrayIndexExpression();
           }
         }
         return this.parseIdentifierExpression();
@@ -441,14 +492,7 @@ export class Parser {
     const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const expression = this.parseExpression();
     const rightParen = this.consume(SyntaxKind.RightParenthesis);
-    const parenExpression = new ParenthesisedExpression(leftParen, expression, rightParen);
-    // parenthesised expressions can also be the target of a property access.
-    if (this.current.kind === SyntaxKind.Dot) {
-      const dot = this.nextToken();
-      const property = this.parseIdentifierExpression();
-      return new PropertyAccessExpression(parenExpression, dot, property);
-    }
-    return parenExpression;
+    return new ParenthesisedExpression(leftParen, expression, rightParen);
   }
 
   private parseBoolLiteralExpression(): BoolLiteralExpression {
@@ -478,24 +522,11 @@ export class Parser {
 
   private parsePrefixExpression(): PrefixExpression {
     const opToken = this.nextToken();
-    const operand = this.parseIdentifierExpression();
+    const operand = this.parsePrimaryExpression();
     return new PrefixExpression(opToken, operand);
   }
 
-  private parsePostfixExpression(): PostfixExpression {
-    const operand = this.parseIdentifierExpression();
-    const opToken = this.nextToken();
-    return new PostfixExpression(operand, opToken);
-  }
-
-  private parsePropertyAccessExpression(): PropertyAccessExpression {
-    const target = this.parseIdentifierExpression();
-    const dot = this.consume(SyntaxKind.Dot);
-    const property = this.parseIdentifierExpression();
-    return new PropertyAccessExpression(target, dot, property);
-  }
-
-  private parseCallExpression(): CallExpression {
+  private parseCallExpression(): ExpressionSyntax {
     const callee = this.parseIdentifierExpression();
     const leftParen = this.consume(SyntaxKind.LeftParenthesis);
     const args: SyntaxNode[] = [];
@@ -513,11 +544,11 @@ export class Parser {
       }
     }
     const rightParen = this.consume(SyntaxKind.RightParenthesis);
+    // call expressions can be the target of a property access.
     return new CallExpression(callee, leftParen, args, rightParen);
   }
 
-  private parseListAccessExpression(): ListAccessExpression {
-    const array = this.parseIdentifierExpression();
+  private parseListAccessExpression(array: ExpressionSyntax): ListAccessExpression {
     const leftBracket = this.consume(SyntaxKind.LeftBracket);
     const pipe = this.consume(SyntaxKind.Pipe);
     const index = this.parseExpression();
@@ -531,11 +562,10 @@ export class Parser {
     );
   }
 
-  private parseMapAccessExpression(): MapAccessExpression {
-    const map = this.parseIdentifierExpression();
+  private parseMapAccessExpression(map: ExpressionSyntax): MapAccessExpression {
     const leftBracket = this.consume(SyntaxKind.LeftBracket);
     const questionMark = this.consume(SyntaxKind.QuestionMark);
-    const key = this.parseStringLiteral();
+    const key = this.parseExpression();
     const rightBracket = this.consume(SyntaxKind.RightBracket);
     return new MapAccessExpression(
       map,
@@ -546,8 +576,7 @@ export class Parser {
     );
   }
 
-  private parseGridAccessExpression(): GridAccessExpression {
-    const grid = this.parseIdentifierExpression();
+  private parseGridAccessExpression(grid: ExpressionSyntax): GridAccessExpression {
     const leftBracket = this.consume(SyntaxKind.LeftBracket);
     const hash = this.consume(SyntaxKind.Hash);
     const firstIndex = this.parseExpression();
@@ -565,12 +594,11 @@ export class Parser {
     );
   }
 
-  private parseArrayAccessExpression(): ArrayAccessExpression {
-    const array = this.parseIdentifierExpression();
+  private parseArrayAccessExpression(array: ExpressionSyntax): ArrayAccessExpression {
     const leftBracket = this.consume(SyntaxKind.LeftBracket);
     const at = this.consume(SyntaxKind.At);
     const indices: SyntaxNode[] = [];
-    while (this.current.kind !== SyntaxKind.RightParenthesis && !this.atEnd) {
+    while (this.current.kind !== SyntaxKind.RightBracket && !this.atEnd) {
       const start = this.idx;
       const arg = this.parseExpression();
       indices.push(arg);
@@ -593,11 +621,10 @@ export class Parser {
     );
   }
 
-  private parseArrayIndexExpression(): ArrayIndexExpression {
-    const array = this.parseIdentifierExpression();
+  private parseArrayIndexExpression(array: ExpressionSyntax): ArrayIndexExpression {
     const leftBracket = this.consume(SyntaxKind.LeftBracket);
     const indices: SyntaxNode[] = [];
-    while (this.current.kind !== SyntaxKind.RightParenthesis && !this.atEnd) {
+    while (this.current.kind !== SyntaxKind.RightBracket && !this.atEnd) {
       const start = this.idx;
       const arg = this.parseExpression();
       indices.push(arg);
