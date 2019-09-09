@@ -192,6 +192,13 @@ export class Lexer {
     switch (buf) {
       case '.':
         kind = SyntaxKind.Dot;
+        if (digit(this.current)) {
+          kind = SyntaxKind.RealLiteral;
+          do {
+            buf += this.current;
+            this.advance();
+          } while (!this.atEnd && digit(this.current));
+        }
         break;
       case ';':
         kind = SyntaxKind.Semicolon;
@@ -247,6 +254,11 @@ export class Lexer {
         break;
       case '*':
         kind = SyntaxKind.Star;
+        if (this.current === '=') {
+          buf += this.current;
+          this.advance();
+          kind = SyntaxKind.StarEquals;
+        }
         break;
       case '/':
         kind = SyntaxKind.Slash;
