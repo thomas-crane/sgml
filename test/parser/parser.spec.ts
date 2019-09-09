@@ -1,5 +1,7 @@
 import { expect } from 'chai';
+import * as fs from 'fs';
 import 'mocha';
+import { extname, join } from 'path';
 import { DiagnosticBag } from '../../src/diagnostics/diagnostic-bag';
 import { Parser } from '../../src/parser/parser';
 
@@ -275,5 +277,23 @@ describe('Parser', () => {
     const parser = new Parser('💡💡💡', new DiagnosticBag());
     const result = parser.parseRoot();
     expect(result).not.to.equal(undefined);
+  });
+  // FIXME(thomas-crane): this takes a while. Maybe we can
+  // parallelize this at some point.
+  it('should parse a large amount of sample code.', () => {
+    const FILE_DIR = join(__dirname, '..', 'test-scripts');
+    const files = fs.readdirSync(FILE_DIR);
+    const results = files
+      .filter((file) => extname(file) === '.gml')
+      .map((file) => fs.readFileSync(join(FILE_DIR, file), { encoding: 'utf8' }))
+      .map((contents) => {
+        const bag = new DiagnosticBag();
+        const parser = new Parser(contents, bag);
+        parser.parseRoot();
+        return bag.reports.length;
+      })
+      .reduce((sum, reports) => sum + reports);
+
+    expect(results).to.equal(0);
   });
 });

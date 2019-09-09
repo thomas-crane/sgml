@@ -1,0 +1,2 @@
+///clearEmmetSelection()
+clearSelection();
