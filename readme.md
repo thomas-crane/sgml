@@ -17,6 +17,7 @@ Safe Game Maker Language.
     - [Building](#building)
     - [Testing](#testing)
   - [Running](#running)
+  - [Acknowledgements](#acknowledgements)
 
 ## About
 
@@ -38,7 +39,7 @@ The primary focus of SGML is not to provide a compiler which transforms GML into
 + [x] Syntax analysis
   + [x] AST implementations
   + [x] Parser implementation
-  + [ ] Test cases
+  + [x] Test cases
 + [ ] Semantic analysis
   + [ ] Symbol implementations
   + [ ] Visitor/pass pattern implementation
@@ -136,3 +137,7 @@ root.forEachChild((child) => {
 // }
 
 ```
+
+## Acknowledgements
+
+Test scripts for the purpose of testing the parser were sourced from the [GameMakerDiscord/Emmet](https://github.com/GameMakerDiscord/Emmets) repository.

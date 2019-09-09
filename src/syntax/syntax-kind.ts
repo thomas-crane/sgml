@@ -24,6 +24,7 @@ export enum SyntaxKind {
   Equals,
   PlusEquals,
   MinusEquals,
+  StarEquals,
   // arithmetic
   Plus,
   PlusPlus,
@@ -75,6 +76,7 @@ export enum SyntaxKind {
   Exit,
   With,
   Enum,
+  Return,
   LastToken,
 
   // trivia
@@ -86,10 +88,10 @@ export enum SyntaxKind {
 
   // statements
   FirstStatement,
+  TerminatedStatement,
   ExpressionStatement,
   BlockStatement,
-  AssignmentStatement,
-  LocalDeclarationStatement,
+  LocalDeclarationListStatement,
   IfStatement,
   RepeatStatement,
   WhileStatement,
@@ -97,10 +99,12 @@ export enum SyntaxKind {
   ContinueStatement,
   ExitStatement,
   DoStatement,
+  ForStatement,
   SwitchStatement,
   CaseStatement,
   DefaultStatement,
   WithStatement,
+  ReturnStatement,
   LastStatement,
 
   // expressions

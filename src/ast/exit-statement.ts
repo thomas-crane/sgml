@@ -5,12 +5,13 @@ import { StatementSyntax } from './statement-syntax';
 
 export class ExitStatement extends StatementSyntax {
   kind = SyntaxKind.ExitStatement;
-  children = [this.exit, this.semicolon];
+  children = [
+    this.exit,
+  ];
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
     readonly exit: SyntaxToken,
-    readonly semicolon: SyntaxToken,
   ) {
     super();
     this.children.forEach((child) => {

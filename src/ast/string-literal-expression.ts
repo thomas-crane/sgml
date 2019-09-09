@@ -3,7 +3,7 @@ import { SyntaxToken } from '../syntax/syntax-token';
 import { ExpressionSyntax } from './expression-syntax';
 
 export class StringLiteralExpression extends ExpressionSyntax {
-  kind = SyntaxKind.HexLiteralExpression;
+  kind = SyntaxKind.StringLiteralExpression;
   children = [this.value];
   span = this.value.span;
   constructor(

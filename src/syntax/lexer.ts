@@ -101,7 +101,8 @@ export class Lexer {
     // block comments
     if (this.current === '/' && this.peek(1) === '*') {
       const start = this.idx;
-      let buf = '';
+      let buf = '/*';
+      this.idx += 2;
       do {
         buf += this.current;
         this.advance();
@@ -173,6 +174,9 @@ export class Lexer {
         this.advance();
         // TODO: check for escaped quotes.
       } while (!this.atEnd && this.current !== EOS);
+      // include end quote
+      buf += this.current;
+      this.advance();
       return new SyntaxToken(
         SyntaxKind.StringLiteral,
         new TextSpan(start, buf.length),
@@ -189,6 +193,13 @@ export class Lexer {
     switch (buf) {
       case '.':
         kind = SyntaxKind.Dot;
+        if (digit(this.current)) {
+          kind = SyntaxKind.RealLiteral;
+          do {
+            buf += this.current;
+            this.advance();
+          } while (!this.atEnd && digit(this.current));
+        }
         break;
       case ';':
         kind = SyntaxKind.Semicolon;
@@ -244,6 +255,11 @@ export class Lexer {
         break;
       case '*':
         kind = SyntaxKind.Star;
+        if (this.current === '=') {
+          buf += this.current;
+          this.advance();
+          kind = SyntaxKind.StarEquals;
+        }
         break;
       case '/':
         kind = SyntaxKind.Slash;
@@ -401,6 +417,9 @@ export class Lexer {
           break;
         case 'enum':
           kind = SyntaxKind.Enum;
+          break;
+        case 'return':
+          kind = SyntaxKind.Return;
           break;
         default:
           kind = SyntaxKind.Identifier;

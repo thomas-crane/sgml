@@ -8,18 +8,14 @@ export class RepeatStatement extends StatementSyntax {
   kind = SyntaxKind.RepeatStatement;
   children = [
     this.repeat,
-    this.leftParen,
     this.amount,
-    this.rightParen,
     this.statement,
   ];
   span = TextSpan.flattenNodes(this.children);
 
   constructor(
     readonly repeat: SyntaxToken,
-    readonly leftParen: SyntaxToken,
     readonly amount: ExpressionSyntax,
-    readonly rightParen: SyntaxToken,
     readonly statement: StatementSyntax,
   ) {
     super();

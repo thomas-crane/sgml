@@ -72,7 +72,7 @@ describe('Lexer', () => {
       assert.isTrue(lexer.tokens().slice(0, -1).every((token) => token.kind === SyntaxKind.IntLiteral));
     });
     it('should recognise real literals.', () => {
-      const lexer = new Lexer('0.123 0.0 1.2 12343.4234', diagnosticBag);
+      const lexer = new Lexer('0.123 0.0 1.2 12343.4234 .43 .1 .01', diagnosticBag);
       assert.isTrue(lexer.tokens().slice(0, -1).every((token) => token.kind === SyntaxKind.RealLiteral));
     });
     it('should recognise hex literals.', () => {
@@ -94,7 +94,7 @@ describe('Lexer', () => {
       expect(falseToken.kind).to.equal(SyntaxKind.FalseLiteral);
     });
     it('should recognise misc symbols', () => {
-      const lexer = new Lexer('. ; : , ! ? # @ = += -=', diagnosticBag);
+      const lexer = new Lexer('. ; : , ! ? # @ = += -= *=', diagnosticBag);
       assert.isTrue(lexer.tokens().every((token) => token.kind !== SyntaxKind.Unknown));
     });
     it('should recognise arithmetic operators', () => {
