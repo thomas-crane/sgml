@@ -17,8 +17,8 @@ armour = -2;
 
   // 1
   `var xx,yy;
-xx = x - 32 +irandom(64);
-yy = y - 32 +irandom(64);
+xx = x - 32 +irandom(64) >> 2;
+yy = y - 32 +irandom(64) | 3;
 instance_create(xx, yy, obj_blood);
 `,
 
@@ -172,6 +172,9 @@ switch (keyboard_key)
       y += 4;
       break;
     }
+    default:
+      x += $ff00;
+      break;
 }
 `,
 
@@ -202,13 +205,13 @@ for (i = 0; i < 10; i += 1)
 if invisible exit;
 while (place_meeting(x, y))
   {
-  x -= lengthdir_x(1, direction - 180);
-  y -= lengthdir_y(1, direction - 180);
+  x -= lengthdir_x(1, direction div 180);
+  y -= lengthdir_y(1, direction % 180);
   }
 }
 `,
 
-// 20
+  // 20
   `var inst;
 inst = noone;
 with (obj_ball)
@@ -216,6 +219,14 @@ with (obj_ball)
   if str > other.str inst = id;
   }
 if inst != noone target = inst;
+`,
+
+  // 21
+  `if true || false {
+    return 10;
+  } else {
+    return "test";
+  }
 `,
 
 ];
@@ -229,4 +240,40 @@ describe('Parser', () => {
       expect(diagnosticBag.reports.length).to.equal(0);
     });
   }
+  it('should report a diagnostic if an unexpected token is encountered.', () => {
+    const diagnosticBag = new DiagnosticBag();
+    const parser = new Parser('if > 10 break;', diagnosticBag);
+    parser.parseRoot();
+    expect(diagnosticBag.reports.length).to.be.greaterThan(0);
+  });
+  it('should not get stuck while parsing an array index expression.', () => {
+    const parser = new Parser('test[if for while', new DiagnosticBag());
+    const result = parser.parseRoot();
+    expect(result).not.to.equal(undefined);
+  });
+  it('should not get stuck while parsing an array access expression.', () => {
+    const parser = new Parser('test[@if for while', new DiagnosticBag());
+    const result = parser.parseRoot();
+    expect(result).not.to.equal(undefined);
+  });
+  it('should not get stuck while parsing a call expression.', () => {
+    const parser = new Parser('test(if for while', new DiagnosticBag());
+    const result = parser.parseRoot();
+    expect(result).not.to.equal(undefined);
+  });
+  it('should not get stuck while parsing a switch statement.', () => {
+    const parser = new Parser('switch (test) {💡💡💡', new DiagnosticBag());
+    const result = parser.parseRoot();
+    expect(result).not.to.equal(undefined);
+  });
+  it('should not get stuck while parsing a block statement.', () => {
+    const parser = new Parser('{💡💡💡', new DiagnosticBag());
+    const result = parser.parseRoot();
+    expect(result).not.to.equal(undefined);
+  });
+  it('should not get stuck while parsing a script.', () => {
+    const parser = new Parser('💡💡💡', new DiagnosticBag());
+    const result = parser.parseRoot();
+    expect(result).not.to.equal(undefined);
+  });
 });

@@ -218,7 +218,6 @@ export class Parser {
     const varToken = this.consume(SyntaxKind.Var);
     const declarations: SyntaxNode[] = [];
     while (!this.atEnd) {
-      const start = this.idx;
       const expression = this.parseExpression();
       declarations.push(expression);
       // if there is no comma we have
@@ -227,9 +226,6 @@ export class Parser {
         declarations.push(this.consume(SyntaxKind.Comma));
       } else {
         break;
-      }
-      if (this.idx === start) {
-        this.nextToken();
       }
     }
     return new LocalDeclarationListStatement(
