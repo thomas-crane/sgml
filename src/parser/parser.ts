@@ -98,6 +98,7 @@ function getBinaryOperatorPrecedence(op: SyntaxKind): number {
     case SyntaxKind.Equals:
     case SyntaxKind.PlusEquals:
     case SyntaxKind.MinusEquals:
+    case SyntaxKind.StarEquals:
       return 1;
     default:
       return 0;

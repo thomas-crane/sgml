@@ -24,6 +24,7 @@ export enum SyntaxKind {
   Equals,
   PlusEquals,
   MinusEquals,
+  StarEquals,
   // arithmetic
   Plus,
   PlusPlus,
