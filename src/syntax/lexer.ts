@@ -101,7 +101,8 @@ export class Lexer {
     // block comments
     if (this.current === '/' && this.peek(1) === '*') {
       const start = this.idx;
-      let buf = '';
+      let buf = '/*';
+      this.idx += 2;
       do {
         buf += this.current;
         this.advance();
