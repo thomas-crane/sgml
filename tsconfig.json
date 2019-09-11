@@ -9,7 +9,8 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": false
+    "esModuleInterop": false,
+    "downlevelIteration": true
   },
   "exclude": [
     "test",
