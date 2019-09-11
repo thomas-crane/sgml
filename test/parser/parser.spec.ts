@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import * as fs from 'fs';
 import 'mocha';
-import { extname, join } from 'path';
-import { DiagnosticBag } from '../../src/diagnostics/diagnostic-bag';
+import { join } from 'path';
 import { Parser } from '../../src/parser/parser';
+import { Program } from '../../src/program/program';
+import { source } from '../util';
 
 // examples are taken from the GML reference doc
 // https://docs.yoyogames.com/source/dadiospice/002_reference/001_gml%20language%20overview/
@@ -235,65 +235,55 @@ if inst != noone target = inst;
 
 describe('Parser', () => {
   for (let i = 0; i < EXAMPLES.length; i++) {
-    it(`should parse example #${i}`, () => {
-      const diagnosticBag = new DiagnosticBag();
-      const parser = new Parser(EXAMPLES[i], diagnosticBag);
-      parser.parseRoot();
-      expect(diagnosticBag.reports.length).to.equal(0);
+    it(`should parse example #${i}`, async () => {
+      const parser = new Parser(source(EXAMPLES[i]));
+      await parser.parseRoot();
+      expect(parser.diagnostics.reports.length).to.equal(0);
     });
   }
-  it('should report a diagnostic if an unexpected token is encountered.', () => {
-    const diagnosticBag = new DiagnosticBag();
-    const parser = new Parser('if > 10 break;', diagnosticBag);
-    parser.parseRoot();
-    expect(diagnosticBag.reports.length).to.be.greaterThan(0);
+  it('should report a diagnostic if an unexpected token is encountered.', async () => {
+    const parser = new Parser(source('if > 10 break;'));
+    await parser.parseRoot();
+    expect(parser.diagnostics.reports.length).to.be.greaterThan(0);
   });
-  it('should not get stuck while parsing an array index expression.', () => {
-    const parser = new Parser('test[if for while', new DiagnosticBag());
-    const result = parser.parseRoot();
+  it('should not get stuck while parsing an array index expression.', async () => {
+    const parser = new Parser(source('test[if for while'));
+    const result = await parser.parseRoot();
     expect(result).not.to.equal(undefined);
   });
-  it('should not get stuck while parsing an array access expression.', () => {
-    const parser = new Parser('test[@if for while', new DiagnosticBag());
-    const result = parser.parseRoot();
+  it('should not get stuck while parsing an array access expression.', async () => {
+    const parser = new Parser(source('test[@if for while'));
+    const result = await parser.parseRoot();
     expect(result).not.to.equal(undefined);
   });
-  it('should not get stuck while parsing a call expression.', () => {
-    const parser = new Parser('test(if for while', new DiagnosticBag());
-    const result = parser.parseRoot();
+  it('should not get stuck while parsing a call expression.', async () => {
+    const parser = new Parser(source('test(if for while'));
+    const result = await parser.parseRoot();
     expect(result).not.to.equal(undefined);
   });
-  it('should not get stuck while parsing a switch statement.', () => {
-    const parser = new Parser('switch (test) {💡💡💡', new DiagnosticBag());
-    const result = parser.parseRoot();
+  it('should not get stuck while parsing a switch statement.', async () => {
+    const parser = new Parser(source('switch (test) {💡💡💡'));
+    const result = await parser.parseRoot();
     expect(result).not.to.equal(undefined);
   });
-  it('should not get stuck while parsing a block statement.', () => {
-    const parser = new Parser('{💡💡💡', new DiagnosticBag());
-    const result = parser.parseRoot();
+  it('should not get stuck while parsing a block statement.', async () => {
+    const parser = new Parser(source('{💡💡💡'));
+    const result = await parser.parseRoot();
     expect(result).not.to.equal(undefined);
   });
-  it('should not get stuck while parsing a script.', () => {
-    const parser = new Parser('💡💡💡', new DiagnosticBag());
-    const result = parser.parseRoot();
+  it('should not get stuck while parsing a script.', async () => {
+    const parser = new Parser(source('💡💡💡'));
+    const result = await parser.parseRoot();
     expect(result).not.to.equal(undefined);
   });
   // FIXME(thomas-crane): this takes a while. Maybe we can
   // parallelize this at some point.
-  it('should parse a large amount of sample code.', () => {
+  it('should parse a large amount of sample code.', async () => {
     const FILE_DIR = join(__dirname, '..', 'test-scripts');
-    const files = fs.readdirSync(FILE_DIR);
-    const results = files
-      .filter((file) => extname(file) === '.gml')
-      .map((file) => fs.readFileSync(join(FILE_DIR, file), { encoding: 'utf8' }))
-      .map((contents) => {
-        const bag = new DiagnosticBag();
-        const parser = new Parser(contents, bag);
-        parser.parseRoot();
-        return bag.reports.length;
-      })
-      .reduce((sum, reports) => sum + reports);
-
-    expect(results).to.equal(0);
+    const program = new Program(FILE_DIR);
+    await program.getSourceFiles();
+    const result = await program.emit();
+    const sum = result.reduce((sum, unit) => sum + unit.diagnostics.length, 0);
+    expect(sum).to.equal(0);
   });
 });
