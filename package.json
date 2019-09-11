@@ -7,7 +7,7 @@
     "compile": "tsc -p .",
     "lint": "npm run lint:tslint && npm run lint:editorconfig",
     "lint:tslint": "tslint -p .",
-    "lint:editorconfig": "editorconfig-checker",
+    "lint:editorconfig": "editorconfig-checker ./src",
     "test": "nyc mocha",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
