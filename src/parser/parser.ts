@@ -41,6 +41,7 @@ import { SyntaxKind } from '../syntax/syntax-kind';
 import { SyntaxNode } from '../syntax/syntax-node';
 import { SyntaxToken } from '../syntax/syntax-token';
 import { TextSpan } from '../syntax/text-span';
+import { Source } from '../text/source';
 import { SyntaxRoot } from './syntax-root';
 
 /**
@@ -107,10 +108,11 @@ function getBinaryOperatorPrecedence(op: SyntaxKind): number {
 
 export class Parser {
 
+  readonly diagnostics: DiagnosticBag;
   private idx: number;
 
   private readonly tokens: SyntaxToken[];
-  private readonly diagnostics: DiagnosticBag;
+  private readonly source: Source;
 
   private get current(): SyntaxToken {
     return this.tokens[this.idx];
@@ -120,14 +122,16 @@ export class Parser {
     return this.current.kind === SyntaxKind.EOF;
   }
 
-  constructor(source: string, diagnostics: DiagnosticBag) {
-    const lexer = new Lexer(source, diagnostics);
-    this.tokens = lexer.tokens();
+  constructor(source: Source) {
+    this.tokens = [];
     this.idx = 0;
-    this.diagnostics = diagnostics;
+    this.source = source;
+    this.diagnostics = new DiagnosticBag(source);
   }
 
-  parseRoot(): SyntaxRoot {
+  async parseRoot(): Promise<SyntaxRoot> {
+    const lexer = new Lexer(await this.source.contents(), this.diagnostics);
+    this.tokens.push(...lexer.tokens());
     const statements: StatementSyntax[] = [];
     while (this.current.kind !== SyntaxKind.EOF) {
       const start = this.idx;

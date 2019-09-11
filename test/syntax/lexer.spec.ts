@@ -3,6 +3,7 @@ import 'mocha';
 import { DiagnosticBag } from '../../src/diagnostics/diagnostic-bag';
 import { Lexer } from '../../src/syntax/lexer';
 import { SyntaxKind } from '../../src/syntax/syntax-kind';
+import { SourceFile } from '../../src/text/source-file';
 
 const TEST_SCRIPT = `ds = ds_grid_create();
 ds_grid_clear(ds, 0);
@@ -29,7 +30,8 @@ a[@ i] = 100;
 }
 `;
 
-const diagnosticBag = new DiagnosticBag();
+const testSource = new SourceFile('test');
+const diagnosticBag = new DiagnosticBag(testSource);
 
 describe('Lexer', () => {
   describe('#tokens()', () => {
