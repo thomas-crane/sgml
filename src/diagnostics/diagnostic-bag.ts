@@ -1,3 +1,4 @@
+import { StatementSyntax } from '../ast/statement-syntax';
 import { SyntaxKind } from '../syntax/syntax-kind';
 import { SyntaxToken } from '../syntax/syntax-token';
 import { TextSpan } from '../syntax/text-span';
@@ -35,6 +36,18 @@ export class DiagnosticBag {
     this.report(
       `Unexpected ${SyntaxKind[actual.kind]}. Expected ${SyntaxKind[expected]}`,
       actual.span,
+    );
+  }
+
+  /**
+   * Reports the presence of a statement which is not valid
+   * in the context in which the statement appeared.
+   * @param statement The statement which is out of context.
+   */
+  reportStatementOutOfContext(statement: StatementSyntax) {
+    this.report(
+      'This statement cannot appear in this context.',
+      statement.span,
     );
   }
 
