@@ -283,7 +283,7 @@ describe('Parser', () => {
     const program = new Program(FILE_DIR);
     await program.getSourceFiles();
     const result = await program.emit();
-    const sum = result.reduce((sum, unit) => sum + unit.diagnostics.length, 0);
+    const sum = result.reduce((sum, unit) => sum + unit.diagnostics.reports.length, 0);
     expect(sum).to.equal(0);
   });
 });

@@ -1,4 +1,3 @@
-import { Diagnostic } from '../diagnostics/diagnostic';
 import { DiagnosticBag } from '../diagnostics/diagnostic-bag';
 import { Parser } from '../parser/parser';
 import { SyntaxRoot } from '../parser/syntax-root';
@@ -7,16 +6,13 @@ import { Source } from '../text/source';
 export class CompilationUnit {
 
   readonly source: Source;
-  get diagnostics(): ReadonlyArray<Diagnostic> {
-    return this.diagnosticBag.reports;
-  }
 
-  private readonly diagnosticBag: DiagnosticBag;
+  readonly diagnostics: DiagnosticBag;
   private root: SyntaxRoot | undefined;
 
   constructor(source: Source) {
     this.source = source;
-    this.diagnosticBag = new DiagnosticBag(source);
+    this.diagnostics = new DiagnosticBag(source);
   }
 
   async syntaxRoot(): Promise<Readonly<SyntaxRoot>> {
