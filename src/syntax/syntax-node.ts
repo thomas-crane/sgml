@@ -18,4 +18,16 @@ export abstract class SyntaxNode {
    * The parent of this node.
    */
   parent: SyntaxNode | undefined;
+
+  isChildOf(kind: SyntaxKind): boolean {
+    let current = this.parent;
+    while (current !== undefined) {
+      if (current.kind === kind) {
+        return true;
+      } else {
+        current = current.parent;
+      }
+    }
+    return false;
+  }
 }
