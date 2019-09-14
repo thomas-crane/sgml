@@ -1,3 +1,4 @@
+import { ExpressionSyntax } from '../ast/expression-syntax';
 import { StatementSyntax } from '../ast/statement-syntax';
 import { SyntaxKind } from '../syntax/syntax-kind';
 import { SyntaxToken } from '../syntax/syntax-token';
@@ -48,6 +49,19 @@ export class DiagnosticBag {
     this.report(
       'This statement cannot appear in this context.',
       statement.span,
+    );
+  }
+
+  /**
+   * Reports the presence of an expression in a local declaration
+   * list statement which is not supposed to appear in a local
+   * declaration list statement.
+   * @param expression The expression which is wrong.
+   */
+  reportWrongExprInDeclList(expression: ExpressionSyntax) {
+    this.report(
+      'A declaration list can only contain assignment expressions.',
+      expression.span,
     );
   }
 
