@@ -25,11 +25,11 @@ export class CheckDeclarationList implements Pass {
             case SyntaxKind.BinaryExpression:
               const binOp = decl as BinaryExpression;
               if (binOp.opToken.kind !== SyntaxKind.Equals) {
-                this.unit.diagnostics.reportLocalDeclarationListWrongExpression(decl);
+                this.unit.diagnostics.reportWrongExprInDeclList(decl);
               }
               break;
             default:
-              this.unit.diagnostics.reportLocalDeclarationListWrongExpression(decl);
+              this.unit.diagnostics.reportWrongExprInDeclList(decl);
           }
         }
       }
