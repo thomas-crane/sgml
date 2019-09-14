@@ -19,5 +19,5 @@ export function getReportCounter(...passes: PassConstructor[]): ReportCounterFn 
     await runner.run([unit]);
     // console.log(unit.diagnostics.reports);
     return unit.diagnostics.reports.length - before;
-  }
+  };
 }
