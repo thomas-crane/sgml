@@ -3,7 +3,7 @@ import 'mocha';
 import { join } from 'path';
 import { Parser } from '../../src/parser/parser';
 import { Program } from '../../src/program/program';
-import { source } from '../util';
+import { createSource } from '../util';
 
 // examples are taken from the GML reference doc
 // https://docs.yoyogames.com/source/dadiospice/002_reference/001_gml%20language%20overview/
@@ -236,43 +236,45 @@ if inst != noone target = inst;
 describe('Parser', () => {
   for (let i = 0; i < EXAMPLES.length; i++) {
     it(`should parse example #${i}`, async () => {
-      const parser = new Parser(source(EXAMPLES[i]));
+      const source = createSource(EXAMPLES[i]);
+      const parser = new Parser(source);
       await parser.parseRoot();
-      expect(parser.diagnostics.reports.length).to.equal(0);
+      expect(source.diagnostics.length).to.equal(0);
     });
   }
   it('should report a diagnostic if an unexpected token is encountered.', async () => {
-    const parser = new Parser(source('if > 10 break;'));
+    const source = createSource('if > 10 break;');
+    const parser = new Parser(source);
     await parser.parseRoot();
-    expect(parser.diagnostics.reports.length).to.be.greaterThan(0);
+    expect(source.diagnostics.length).to.be.greaterThan(0);
   });
   it('should not get stuck while parsing an array index expression.', async () => {
-    const parser = new Parser(source('test[if for while'));
+    const parser = new Parser(createSource('test[if for while'));
     const result = await parser.parseRoot();
     expect(result).not.to.equal(undefined);
   });
   it('should not get stuck while parsing an array access expression.', async () => {
-    const parser = new Parser(source('test[@if for while'));
+    const parser = new Parser(createSource('test[@if for while'));
     const result = await parser.parseRoot();
     expect(result).not.to.equal(undefined);
   });
   it('should not get stuck while parsing a call expression.', async () => {
-    const parser = new Parser(source('test(if for while'));
+    const parser = new Parser(createSource('test(if for while'));
     const result = await parser.parseRoot();
     expect(result).not.to.equal(undefined);
   });
   it('should not get stuck while parsing a switch statement.', async () => {
-    const parser = new Parser(source('switch (test) {💡💡💡'));
+    const parser = new Parser(createSource('switch (test) {💡💡💡'));
     const result = await parser.parseRoot();
     expect(result).not.to.equal(undefined);
   });
   it('should not get stuck while parsing a block statement.', async () => {
-    const parser = new Parser(source('{💡💡💡'));
+    const parser = new Parser(createSource('{💡💡💡'));
     const result = await parser.parseRoot();
     expect(result).not.to.equal(undefined);
   });
   it('should not get stuck while parsing a script.', async () => {
-    const parser = new Parser(source('💡💡💡'));
+    const parser = new Parser(createSource('💡💡💡'));
     const result = await parser.parseRoot();
     expect(result).not.to.equal(undefined);
   });
@@ -283,7 +285,7 @@ describe('Parser', () => {
     const program = new Program(FILE_DIR);
     await program.getSourceFiles();
     const result = await program.emit();
-    const sum = result.reduce((sum, unit) => sum + unit.diagnostics.reports.length, 0);
+    const sum = result.reduce((sum, unit) => sum + unit.source.diagnostics.length, 0);
     expect(sum).to.equal(0);
   });
 });

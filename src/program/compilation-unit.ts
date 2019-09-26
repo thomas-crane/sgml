@@ -12,7 +12,7 @@ export class CompilationUnit {
 
   constructor(source: Source) {
     this.source = source;
-    this.diagnostics = new DiagnosticBag(source);
+    this.diagnostics = new DiagnosticBag(source.diagnostics);
   }
 
   async syntaxRoot(): Promise<Readonly<SyntaxRoot>> {
