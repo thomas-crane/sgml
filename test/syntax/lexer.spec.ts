@@ -31,7 +31,7 @@ a[@ i] = 100;
 `;
 
 const testSource = new SourceFile('test');
-const diagnosticBag = new DiagnosticBag(testSource);
+const diagnosticBag = new DiagnosticBag(testSource.diagnostics);
 
 describe('Lexer', () => {
   describe('#tokens()', () => {
@@ -128,9 +128,9 @@ describe('Lexer', () => {
     });
     it('should report a diagnostic for unknown tokens.', () => {
       const lexer = new Lexer('💡', diagnosticBag);
-      const before = diagnosticBag.reports.length;
+      const before = testSource.diagnostics.length;
       lexer.tokens();
-      const after = diagnosticBag.reports.length;
+      const after = testSource.diagnostics.length;
       expect(after).to.be.greaterThan(before);
     });
   });

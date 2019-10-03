@@ -3,7 +3,7 @@ import 'mocha';
 import { Parser } from '../../src/parser/parser';
 import { SyntaxKind } from '../../src/syntax/syntax-kind';
 import { SyntaxToken } from '../../src/syntax/syntax-token';
-import { source } from '../util';
+import { createSource } from '../util';
 
 const SCRIPT_CONTENTS = `with (instance_create(x, y, obj_Ball))
 {
@@ -15,7 +15,7 @@ const SCRIPT_CONTENTS = `with (instance_create(x, y, obj_Ball))
 describe('SyntaxRoot', () => {
   describe('#forEachChild()', () => {
     it('should visit every child of every subtree.', async () => {
-      const parser = new Parser(source(SCRIPT_CONTENTS));
+      const parser = new Parser(createSource(SCRIPT_CONTENTS));
       const root = await parser.parseRoot();
       let result = '';
       root.forEachChild((child) => {

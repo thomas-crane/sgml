@@ -108,7 +108,7 @@ function getBinaryOperatorPrecedence(op: SyntaxKind): number {
 
 export class Parser {
 
-  readonly diagnostics: DiagnosticBag;
+  private readonly diagnostics: DiagnosticBag;
   private idx: number;
 
   private readonly tokens: SyntaxToken[];
@@ -126,7 +126,7 @@ export class Parser {
     this.tokens = [];
     this.idx = 0;
     this.source = source;
-    this.diagnostics = new DiagnosticBag(source);
+    this.diagnostics = new DiagnosticBag(source.diagnostics);
   }
 
   async parseRoot(): Promise<SyntaxRoot> {
